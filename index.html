@@ -176,16 +176,16 @@
       border-radius: 99px;
       flex: 1;
     }
-
-    .stepItem.active .dot,
-    .stepItem.done .dot{
-      border-color: var(--primary);
-      color: var(--primary);
+    .stepItem.active .label{
+      color: var(--primary);        /* أزرق واضح */
+      font-weight: 900;
     }
-    .stepItem.active .label,
+    
     .stepItem.done .label{
-      color: var(--primary);
+      color: #1f2937;               /* أغمق من الرمادي */
+      font-weight: 800;
     }
+    
     .stepItem.done .dot{
       background: var(--primary);
       color:#fff;
@@ -201,12 +201,13 @@
     .field{
       margin-top: 14px;
     }
-    label{
-      display:block;
-      font-size: 13px;
-      font-weight: 900;
-      margin-bottom: 8px;
+    .label{
+      font-size: 13px;              /* كان صغير */
+      font-weight: 700;             /* أوضح */
+      color: #6b7280;               /* رمادي مقروء */
+      white-space: nowrap;
     }
+    
     .hint{
       font-size: 12px;
       color: var(--sub);
@@ -311,7 +312,19 @@
       width: 82px;        /* كبريه هنا */
       height: auto;
     }
+    .stepper{
+      padding: 6px 0;
+    }
     
+    .stepItem{
+      gap: 10px;
+    }
+    @media (max-width: 420px){
+      .label{
+        font-size: 12px;
+      }
+    }
+        
   </style>
 </head>
 
