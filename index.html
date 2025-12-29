@@ -43,16 +43,37 @@
       width: 100%;
       max-width: 420px; /* حجم مناسب للجوال */
     }
-
     .container{
-      width:100%;
+      width: 100%;
+      max-width: 420px;
       background: var(--card);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: var(--border);
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
       overflow:hidden;
+    
+      /* ✅ تثبيت الارتفاع */
+      min-height: 520px;           /* عدليه حسب اللي يناسبك */
+      display: flex;
+      flex-direction: column;
     }
+/* ✅ يخلي المحتوى يتمدد ويثبت الكرت */
+.content{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
+/* ✅ كل خطوة نفس المساحة */
+.step-content{
+  flex: 1;
+  display: none;
+}
+
+.step-content.active{
+  display: flex;
+  flex-direction: column;
+}
+    
     /* Top brand area */
     .brand{
       display:flex;
@@ -283,6 +304,14 @@
       .brand img{ width: 48px; height: 48px; }
       .title{ font-size: 17px; }
     }
+
+    .logo{
+      display: block;
+      margin: 6px auto 10px;
+      width: 82px;        /* كبريه هنا */
+      height: auto;
+    }
+    
   </style>
 </head>
 
@@ -293,7 +322,7 @@
       <!-- شعار + اسم -->
       <div class="brand">
         <!-- غيّري الاسم حسب ملفك: logo.png -->
-        <img src="logo.png" alt="شعار اللجنة">
+        <img class="logo" src="logo.png" alt="شعار اللجنة">
     
       </div>
 
