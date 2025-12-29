@@ -136,60 +136,78 @@
     .stepperWrap{
       padding: 12px 16px 6px;
     }
+    
     .stepper{
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
       gap:10px;
     }
+    
     .stepItem{
       display:flex;
+      flex-direction:column;     /* العنوان تحت الدائرة */
       align-items:center;
-      gap:8px;
+      gap:6px;
+      flex:1;
       min-width:0;
-      flex: 1;
     }
+    
+    .label{
+      font-size: 14px;
+      font-weight: 900;
+      color:#334155;             /* واضح */
+      white-space: normal;       /* مهم */
+      overflow: visible;         /* مهم */
+      text-overflow: unset;      /* مهم */
+      line-height: 1.2;
+      text-align:center;
+    }
+    
     .dot{
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 999px;
       display:grid;
       place-items:center;
       font-weight:900;
       font-size: 13px;
-      border:2px solid #cfd6dd;
-      color:#8892a0;
+      border:2px solid #cbd5e1;
+      color:#64748b;
       background:#fff;
-      flex: 0 0 auto;
-    }
-    .label{
-      font-size: 12px;
-      font-weight: 800;
-      color:#8892a0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .line{
-      height: 3px;
-      background:#cfd6dd;
-      border-radius: 99px;
-      flex: 1;
-    }
-    .stepItem.active .label{
-      color: var(--primary);        /* أزرق واضح */
-      font-weight: 900;
     }
     
-    .stepItem.done .label{
-      color: #1f2937;               /* أغمق من الرمادي */
-      font-weight: 800;
+    /* active/done */
+    .stepItem.active .dot{
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .stepItem.active .label{
+      color: var(--primary);
     }
     
     .stepItem.done .dot{
       background: var(--primary);
+      border-color: var(--primary);
       color:#fff;
     }
+    .stepItem.done .label{
+      color:#0f172a;
+    }
+    
+    /* الخطوط */
+    .line{
+      height: 3px;
+      background:#cbd5e1;
+      border-radius: 99px;
+      flex: 1;
+      margin-top: 14px; /* عشان يجي بمستوى الدوائر */
+    }
+    @media (max-width: 420px){
+      .label{ font-size: 13px; }
+      .dot{ width:28px; height:28px; }
+    }
+    
 
     /* Content */
     .content{
