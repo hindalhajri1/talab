@@ -190,11 +190,7 @@
   </div>
 
 
-  fetch("https://script.google.com/macros/s/AKfycbw79t8X8g5M3nl-hvra3VS7-9Wy-DERczqWyYipuqhHvufMzK4D-eZciRx7tkl1-jyN/exec",{
-    method:"POST",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({name:"test", mobile:"0500000000", city:"الدمام", count:1})
-  }).then(r=>r.json()).then(console.log).catch(console.error);
+
   
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw79t8X8g5M3nl-hvra3VS7-9Wy-DERczqWyYipuqhHvufMzK4D-eZciRx7tkl1-jyN/exec"; // <-- حطي رابطك /exec
@@ -217,6 +213,7 @@
     showMsg("none");
     document.getElementById("confirmLink").style.display="none";
   }
+
 
   async function submitForm(){
     const btn = document.querySelector(".btnPrimary");
