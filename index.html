@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>حاسبة تقدير الاحتياج</title>
+  <title>طلب الأذانية</title>
 
-  <!-- Tajawal from Google Fonts -->
+  <!-- Tajawal -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -16,16 +16,13 @@
       --bg:#f4f6f8;
       --card:#ffffff;
       --muted:#e6eaee;
-      --text:#1f2a37;
-      --sub:#6b7280;
-
+      --text:#0f172a;
+      --sub:#64748b;
       --radius:18px;
-      --shadow: 0 10px 26px rgba(0,0,0,.08);
-      --border: 1px solid rgba(15, 23, 42, 0.08);
+      --shadow:0 14px 30px rgba(0,0,0,.10);
+      --border:1px solid rgba(15, 23, 42, .08);
     }
-
-    *{ box-sizing:border-box; }
-
+    *{box-sizing:border-box}
     body{
       margin:0;
       font-family:"Tajawal", system-ui, -apple-system, Arial, sans-serif;
@@ -33,398 +30,325 @@
       color:var(--text);
       min-height:100vh;
       display:flex;
-      align-items:center;   /* وسط الشاشة عموديًا */
-      justify-content:center; /* وسط الشاشة أفقيًا */
-      padding: 16px;
-    }
-
-    /* Wrapper for perfect mobile fit */
-    .shell{
-      width: 100%;
-      max-width: 420px; /* حجم مناسب للجوال */
+      align-items:center;
+      justify-content:center;
+      padding:16px;
     }
     .container{
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      width:100%;
+      max-width:520px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:var(--border);
       overflow:hidden;
-    
-      /* ✅ تثبيت الارتفاع */
-      min-height: 520px;           /* عدليه حسب اللي يناسبك */
-      display: flex;
-      flex-direction: column;
     }
-/* ✅ يخلي المحتوى يتمدد ويثبت الكرت */
-.content{
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
 
-/* ✅ كل خطوة نفس المساحة */
-.step-content{
-  flex: 1;
-  display: none;
-}
-
-.step-content.active{
-  display: flex;
-  flex-direction: column;
-}
-    
-    /* Top brand area */
+    /* Brand */
     .brand{
+      padding:16px 18px 10px;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 16px 14px 10px;
-      gap: 10px;
+      gap:10px;
+      border-bottom:1px solid var(--muted);
+      background:linear-gradient(to bottom, #ffffff, #fbfdff);
     }
-
     .brand img{
-      width: 56px;
-      height: 56px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #fff;
+      height:42px; /* كبر الشعار */
+      width:auto;
+      display:block;
+      object-fit:contain;
     }
-
-    .brand .brandText{
+    .brandText{
       text-align:center;
-      line-height:1.2;
+      line-height:1.25;
     }
-
-    .brand .brandTitle{
+    .brandTitle{
       margin:0;
-      font-weight: 900;
-      font-size: 15px;
-      color: var(--primary);
+      font-weight:900;
+      color:var(--primary);
+      font-size:14px;
+    }
+    .brandSub{
+      margin:2px 0 0;
+      color:var(--sub);
+      font-weight:700;
+      font-size:12px;
     }
 
-    .brand .brandSub{
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: var(--sub);
-      font-weight: 500;
-    }
-
+    /* Header */
     .header{
-      padding: 6px 16px 14px;
-      border-top: var(--border);
-      border-bottom: var(--border);
-      text-align:center;
+      padding:14px 18px 8px;
     }
-
     .title{
       margin:0;
-      font-size: 18px;
-      color: var(--primary);
-      font-weight: 900;
+      font-size:18px;
+      font-weight:900;
+      color:var(--primary);
+      text-align:center;
     }
-
     .subtitle{
       margin:8px 0 0;
-      font-size: 13px;
-      color: var(--sub);
+      font-size:13px;
+      color:var(--sub);
       line-height:1.7;
-      font-weight: 500;
+      text-align:center;
     }
 
-    /* Stepper */
-    .stepperWrap{
-      padding: 12px 16px 6px;
-    }
-    
+    /* Stepper (labels under dots) */
+    .stepperWrap{ padding: 10px 18px 0; }
     .stepper{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:10px;
     }
-    
     .stepItem{
       display:flex;
-      flex-direction:column;     /* العنوان تحت الدائرة */
+      flex-direction:column;
       align-items:center;
       gap:6px;
       flex:1;
       min-width:0;
     }
-    
-    .label{
-      font-size: 14px;
-      font-weight: 900;
-      color:#334155;             /* واضح */
-      white-space: normal;       /* مهم */
-      overflow: visible;         /* مهم */
-      text-overflow: unset;      /* مهم */
-      line-height: 1.2;
-      text-align:center;
-    }
-    
     .dot{
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      display:grid;
-      place-items:center;
+      width:30px;height:30px;border-radius:999px;
+      display:grid;place-items:center;
+      font-weight:900;font-size:13px;
+      border:2px solid #cbd5e1;color:#64748b;background:#fff;
+    }
+    .label{
+      font-size:14px;
       font-weight:900;
-      font-size: 13px;
-      border:2px solid #cbd5e1;
-      color:#64748b;
-      background:#fff;
+      color:#334155;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:unset;
+      text-align:center;
+      line-height:1.2;
     }
-    
-    /* active/done */
-    .stepItem.active .dot{
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-    .stepItem.active .label{
-      color: var(--primary);
-    }
-    
-    .stepItem.done .dot{
-      background: var(--primary);
-      border-color: var(--primary);
-      color:#fff;
-    }
-    .stepItem.done .label{
-      color:#0f172a;
-    }
-    
-    /* الخطوط */
     .line{
-      height: 3px;
-      background:#cbd5e1;
-      border-radius: 99px;
-      flex: 1;
-      margin-top: 14px; /* عشان يجي بمستوى الدوائر */
+      height:3px; background:#cbd5e1; border-radius:99px;
+      flex:1; margin-top:14px;
     }
-    @media (max-width: 420px){
-      .label{ font-size: 13px; }
-      .dot{ width:28px; height:28px; }
-    }
-    
+    .stepItem.active .dot{ border-color:var(--primary); color:var(--primary); }
+    .stepItem.active .label{ color:var(--primary); }
+    .stepItem.done .dot{ background:var(--primary); border-color:var(--primary); color:#fff; }
+    .stepItem.done .label{ color:#0f172a; }
 
-    /* Content */
+    /* Content fixed height so card doesn't change */
     .content{
-      padding: 12px 16px 16px;
+      padding:14px 18px 18px;
+      min-height:360px; /* يثبت حجم الكارد بين المراحل */
+      display:flex;
+      flex-direction:column;
     }
     .step-content{ display:none; }
     .step-content.active{ display:block; }
 
-    .field{
-      margin-top: 14px;
-    }
-    .label{
-      font-size: 13px;              /* كان صغير */
-      font-weight: 700;             /* أوضح */
-      color: #6b7280;               /* رمادي مقروء */
-      white-space: nowrap;
-    }
-    
-    .hint{
-      font-size: 12px;
-      color: var(--sub);
-      margin-top: 6px;
-      line-height:1.6;
-      font-weight: 500;
-    }
+    .grid{ display:grid; gap:12px; }
+    .row2{ grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width: 420px){ .row2{ grid-template-columns:1fr; } .label{font-size:13px} .dot{width:28px;height:28px} }
 
-    input{
-      width:100%;
-      padding: 14px 14px;
-      border-radius: 14px;
-      border: 1px solid #d6dde5;
-      outline: none;
-      font-size: 16px; /* مهم للجوال */
-      background:#fff;
-      font-family:"Tajawal", Arial, sans-serif;
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:900;
+      margin-bottom:8px;
     }
-    input:focus{
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(11,60,93,.12);
+    .hint{
+      font-size:12px;
+      color:var(--sub);
+      margin-top:6px;
+      line-height:1.5;
+    }
+    input, select, textarea{
+      width:100%;
+      padding:14px 14px;
+      border-radius:12px;
+      border:1px solid #d6dde5;
+      outline:none;
+      font-size:16px; /* منع zoom على iOS */
+      background:#fff;
+      font-family:inherit;
+    }
+    textarea{ min-height:92px; resize:vertical; }
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(11,60,93,.12);
     }
 
     .buttons{
-      margin-top: 16px;
+      margin-top:16px;
       display:flex;
-      gap: 10px;
+      gap:10px;
     }
-
     button{
       border:none;
-      border-radius: 14px;
-      padding: 14px 12px;
-      font-size: 15px;
-      font-weight: 900;
+      border-radius:12px;
+      padding:14px 12px;
+      font-size:15px;
+      font-weight:900;
       cursor:pointer;
-      width: 100%;
-      transition: transform .06s ease, opacity .2s ease;
-      font-family:"Tajawal", Arial, sans-serif;
+      width:100%;
+      font-family:inherit;
     }
-    button:active{ transform: scale(.99); }
-    .next{ background: var(--primary); color:#fff; }
-    .back{ background: #eef2f7; color: #374151; }
-    .reset{ background: #6b7280; color:#fff; opacity:.95; }
+    .primary{ background:var(--primary); color:#fff; }
+    .secondary{ background:#eef2f7; color:#0f172a; }
+    .danger{ background:#6b7280; color:#fff; }
 
-    /* Result */
-    .result{
-      background:#f0f4f8;
-      border: 1px solid #e2e8f0;
-      padding: 16px;
-      border-radius: 16px;
+    .review{
+      background:#f6f8fb;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      padding:14px;
     }
-    .kv{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin: 6px 0 10px;
-      font-size: 14px;
+    .kv{ display:flex; justify-content:space-between; gap:12px; margin:8px 0; font-size:14px; }
+    .kv strong{ color:#0f172a; }
+    .kv span{ color:#0f172a; font-weight:900; text-align:left; }
+    .success{
+      display:none;
+      margin-top:12px;
+      background:#ecfdf5;
+      border:1px solid #bbf7d0;
+      color:#065f46;
+      padding:12px;
+      border-radius:12px;
+      font-weight:800;
+      text-align:center;
     }
-    .kv strong{ color:#111827; font-weight: 900;}
-    .kv span{ color:#111827; font-weight: 900; font-size: 16px; }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-weight: 900;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
-    .progress-wrap { margin-top: 14px; }
-    .progress-bar{
-      width: 100%;
-      height: 14px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-    }
-    .progress-fill{
-      position: absolute;
-      right: 0;
-      top: 0;
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      transition: width 0.6s ease, background-color 0.4s ease;
-    }
-
-    /* Small screens */
-    @media (max-width: 360px){
-      .brand img{ width: 48px; height: 48px; }
-      .title{ font-size: 17px; }
-    }
-
-    .logo{
-      display: block;
-      margin: 6px auto 10px;
-      width: 82px;        /* كبريه هنا */
-      height: auto;
-    }
-    .stepper{
-      padding: 6px 0;
-    }
-    
-    .stepItem{
-      gap: 10px;
-    }
-    @media (max-width: 420px){
-      .label{
-        font-size: 12px;
-      }
-    }
-        
   </style>
 </head>
 
 <body>
-  <div class="shell">
-    <div class="container">
+  <div class="container">
 
-      <!-- شعار + اسم -->
-      <div class="brand">
-        <!-- غيّري الاسم حسب ملفك: logo.png -->
-        <img class="logo" src="logo.png" alt="شعار اللجنة">
-    
+    <!-- شعار + اسم (بدّلي logo.png باسم شعارك) -->
+    <div class="brand">
+      <img src="logo.png" alt="شعار اللجنة">
+      <div class="brandText">
+        <p class="brandTitle">لجنة تراحم الشرقية</p>
+        <p class="brandSub">نموذج طلب الأذانية</p>
       </div>
+    </div>
 
-      <div class="header">
-        <h1 class="title">حاسبة تقدير الاحتياج</h1>
-        <p class="subtitle">أدخل بيانات الأسرة، وسيتم حساب النسبة وتصنيفها فورًا. العائل محسوب تلقائيًا (1).</p>
+    <div class="header">
+      <h1 class="title">طلب الأذانية</h1>
+      <p class="subtitle">املأ البيانات التالية، وسيتم تسجيل الطلب ومراجعته من الفريق المختص.</p>
+    </div>
+
+    <div class="stepperWrap">
+      <div class="stepper" id="stepper">
+        <div class="stepItem active" data-step="0">
+          <div class="dot">1</div>
+          <div class="label">بيانات الطلب</div>
+        </div>
+        <div class="line"></div>
+        <div class="stepItem" data-step="1">
+          <div class="dot">2</div>
+          <div class="label">الموقع والمستفيد</div>
+        </div>
+        <div class="line"></div>
+        <div class="stepItem" data-step="2">
+          <div class="dot">3</div>
+          <div class="label">تأكيد وإرسال</div>
+        </div>
       </div>
+    </div>
 
-      <div class="stepperWrap">
-        <div class="stepper" id="stepper">
-          <div class="stepItem active" data-step="0">
-            <div class="dot">1</div>
-            <div class="label">الدخل</div>
+    <div class="content">
+
+      <!-- STEP 1 -->
+      <div class="step-content active" data-content="0">
+        <div class="grid">
+          <div>
+            <label for="type">نوع الأذانية</label>
+            <select id="type">
+              <option value="سلال غذائية">سلال غذائية</option>
+              <option value="مستلزمات">مستلزمات</option>
+              <option value="مساعدة نقدية">مساعدة نقدية</option>
+              <option value="أخرى">أخرى</option>
+            </select>
           </div>
-          <div class="line"></div>
-          <div class="stepItem" data-step="1">
-            <div class="dot">2</div>
-            <div class="label">الأفراد</div>
+
+          <div class="row2">
+            <div>
+              <label for="date">التاريخ المطلوب</label>
+              <input type="date" id="date">
+            </div>
+            <div>
+              <label for="count">عدد المستفيدين</label>
+              <input type="number" id="count" min="1" value="1" inputmode="numeric">
+            </div>
           </div>
-          <div class="line"></div>
-          <div class="stepItem" data-step="2">
-            <div class="dot">3</div>
-            <div class="label">النتيجة</div>
+
+          <div>
+            <label for="notes">ملاحظات الطلب</label>
+            <textarea id="notes" placeholder="اكتب أي تفاصيل مهمة..."></textarea>
+            <div class="hint">مثال: احتياج عاجل، تفضيل وقت التسليم، تفاصيل إضافية.</div>
           </div>
+        </div>
+
+        <div class="buttons">
+          <button class="primary" onclick="nextStep()">التالي</button>
         </div>
       </div>
 
-      <div class="content">
-        <!-- STEP 1 -->
-        <div class="step-content active" data-content="0">
-          <div class="field">
-            <label for="income">دخل الأسرة الشهري (ريال)</label>
-            <input inputmode="numeric" pattern="[0-9]*" type="number" id="income" placeholder="مثال: 4000" />
-            <div class="hint">اكتب الدخل الشهري الإجمالي للأسرة.</div>
+      <!-- STEP 2 -->
+      <div class="step-content" data-content="1">
+        <div class="grid">
+          <div class="row2">
+            <div>
+              <label for="name">اسم المستفيد</label>
+              <input id="name" placeholder="مثال: محمد أحمد">
+            </div>
+            <div>
+              <label for="mobile">رقم الجوال</label>
+              <input id="mobile" inputmode="numeric" placeholder="05xxxxxxxx">
+            </div>
           </div>
 
-          <div class="buttons">
-            <button class="next" onclick="nextStep()">التالي</button>
+          <div>
+            <label for="address">العنوان</label>
+            <input id="address" placeholder="المدينة - الحي - الشارع">
+          </div>
+
+          <div class="row2">
+            <div>
+              <label for="city">المدينة</label>
+              <input id="city" placeholder="مثال: الدمام">
+            </div>
+            <div>
+              <label for="time">وقت مناسب للتواصل</label>
+              <select id="time">
+                <option value="صباحًا">صباحًا</option>
+                <option value="مساءً">مساءً</option>
+                <option value="أي وقت">أي وقت</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <!-- STEP 2 -->
-        <div class="step-content" data-content="1">
-          <div class="field">
-            <label for="adults">عدد الأفراد فوق 18 (غير العائل)</label>
-            <input type="number" id="adults" value="0" min="0" inputmode="numeric" pattern="[0-9]*" />
-            <div class="hint">العائل محسوب تلقائيًا ولا يحتاج إدخال.</div>
-          </div>
+        <div class="buttons">
+          <button class="secondary" onclick="prevStep()">رجوع</button>
+          <button class="primary" onclick="goReview()">التالي</button>
+        </div>
+      </div>
 
-          <div class="field">
-            <label for="children">عدد الأطفال (أقل من 18)</label>
-            <input type="number" id="children" value="0" min="0" inputmode="numeric" pattern="[0-9]*" />
-          </div>
+      <!-- STEP 3 -->
+      <div class="step-content" data-content="2">
+        <div class="review" id="reviewBox"></div>
 
-          <div class="buttons">
-            <button class="back" onclick="prevStep()">رجوع</button>
-            <button class="next" onclick="calculate()">احسب</button>
-          </div>
+        <div class="success" id="successMsg">✅ تم إرسال الطلب بنجاح. سيتم التواصل معك قريبًا.</div>
+
+        <div class="buttons" style="margin-top:12px;">
+          <button class="secondary" onclick="goToStep(1)">تعديل البيانات</button>
         </div>
 
-        <!-- STEP 3 -->
-        <div class="step-content" data-content="2">
-          <div id="result" class="result"></div>
-
-          <div class="buttons" style="margin-top:12px;">
-            <button class="back" onclick="goToStep(1)">تعديل البيانات</button>
-          </div>
-
-          <div class="buttons">
-            <button class="reset" onclick="resetAll()">إعادة الحساب</button>
-          </div>
+        <div class="buttons">
+          <button class="primary" onclick="submitForm()">إرسال الطلب</button>
+          <button class="danger" onclick="resetAll()">طلب جديد</button>
         </div>
       </div>
 
@@ -441,10 +365,9 @@
       if (idx < currentStep) el.classList.add("done");
       if (idx === currentStep) el.classList.add("active");
     });
-
     const lines = document.querySelectorAll(".line");
     lines.forEach((ln, idx) => {
-      ln.style.background = (idx < currentStep) ? "var(--primary)" : "#cfd6dd";
+      ln.style.background = (idx < currentStep) ? "var(--primary)" : "#cbd5e1";
     });
   }
 
@@ -452,110 +375,93 @@
     document.querySelectorAll(".step-content").forEach((c, idx) => {
       c.classList.toggle("active", idx === currentStep);
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goToStep(step){
     currentStep = Math.max(0, Math.min(2, step));
     setStepperState();
     showStepContent();
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
+  function nextStep(){ goToStep(currentStep + 1); }
+  function prevStep(){ goToStep(currentStep - 1); }
 
-  function nextStep(){
-    if (currentStep === 0) {
-      const incomeStr = document.getElementById("income").value.trim();
-      if (incomeStr === "") {
-        alert("فضلاً أدخل دخل الأسرة (يمكن إدخال 0 إذا لا يوجد دخل).");
-        return;
-      }
-      const income = Number(incomeStr);
-      if (Number.isNaN(income) || income < 0) {
-        alert("فضلاً أدخل دخل الأسرة بشكل صحيح (0 أو أكثر).");
-        return;
-      }
-    }
-    goToStep(currentStep + 1);
-  }
+  function val(id){ return (document.getElementById(id).value || "").trim(); }
 
-  function prevStep(){
-    goToStep(currentStep - 1);
-  }
-
-  function calculate(){
-    const incomeStr = document.getElementById("income").value.trim();
-    if (incomeStr === "") {
-      alert("فضلاً أدخل دخل الأسرة (يمكن إدخال 0 إذا لا يوجد دخل).");
-      goToStep(0);
+  function goReview(){
+    // تحقق بسيط
+    if (!val("name") || !val("mobile") || !val("address")) {
+      alert("فضلاً أكمل بيانات المستفيد (الاسم/الجوال/العنوان).");
       return;
     }
 
-    const income = Number(incomeStr);
-    const adults = Number(document.getElementById("adults").value || 0);
-    const children = Number(document.getElementById("children").value || 0);
-
-    if (Number.isNaN(income) || income < 0) {
-      alert("فضلاً أدخل دخل الأسرة بشكل صحيح (0 أو أكثر).");
-      goToStep(0);
-      return;
-    }
-    if (adults < 0 || children < 0) {
-      alert("فضلاً تأكد من أعداد الأفراد.");
-      return;
-    }
-
-    const base = 6000;
-    const natural =
-      (1 * base) +
-      (adults * 0.5 * base) +
-      (children * 0.3 * base);
-
-    const ratioRaw = Math.round((income / natural) * 100);
-    const ratioDisplay = Math.min(ratioRaw, 100);
-
-    let color = "";
-    let category = "";
-
-    if (ratioRaw <= 30) {
-      color = "#c0392b";
-      category = "أكثر احتياجًا";
-    } else if (ratioRaw <= 60) {
-      color = "#f39c12";
-      category = "متوسط الاحتياج";
-    } else {
-      color = "#27ae60";
-      category = "أقل احتياجًا";
-    }
-
-    document.getElementById("result").innerHTML = `
-      <div class="kv">
-        <strong>نسبة الاحتياج</strong>
-        <span>${ratioDisplay}%</span>
-      </div>
-
-      <div style="margin-top:10px;">
-        <span class="badge" style="background:${color}; color:#fff;">
-          ${category}
-        </span>
-      </div>
-
-      <div class="progress-wrap">
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${ratioDisplay}%; background:${color};"></div>
-        </div>
-      </div>
+    const review = document.getElementById("reviewBox");
+    review.innerHTML = `
+      <div class="kv"><strong>نوع الأذانية</strong><span>${val("type")}</span></div>
+      <div class="kv"><strong>التاريخ المطلوب</strong><span>${val("date") || "-"}</span></div>
+      <div class="kv"><strong>عدد المستفيدين</strong><span>${val("count") || "1"}</span></div>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:12px 0;">
+      <div class="kv"><strong>اسم المستفيد</strong><span>${val("name")}</span></div>
+      <div class="kv"><strong>رقم الجوال</strong><span>${val("mobile")}</span></div>
+      <div class="kv"><strong>العنوان</strong><span>${val("address")}</span></div>
+      <div class="kv"><strong>المدينة</strong><span>${val("city") || "-"}</span></div>
+      <div class="kv"><strong>وقت التواصل</strong><span>${val("time")}</span></div>
+      <div class="kv"><strong>ملاحظات</strong><span>${val("notes") || "-"}</span></div>
     `;
 
+    document.getElementById("successMsg").style.display = "none";
     goToStep(2);
   }
 
+  function submitForm(){
+    // هنا لاحقًا نربطه بـ Google Sheet / Email / Frappe
+    document.getElementById("successMsg").style.display = "block";
+  }
+
   function resetAll(){
-    document.getElementById("income").value = "";
-    document.getElementById("adults").value = "0";
-    document.getElementById("children").value = "0";
+    ["type","date","count","notes","name","mobile","address","city","time"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if (id === "count") el.value = "1";
+      else if (id === "type") el.value = "سلال غذائية";
+      else if (id === "time") el.value = "صباحًا";
+      else el.value = "";
+    });
+    document.getElementById("successMsg").style.display = "none";
     goToStep(0);
   }
 
   setStepperState();
+
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNrr7-o1y6Ab3OlWnRV4_piMYmxmmAknuC3iPMfFpi7Xs7V6qFzReTEdST5EI2vl0z/exec";
+    
+    async function submitForm(){
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const city = document.getElementById("city").value.trim();
+    
+      if(!name || !phone || !city){ alert("فضلاً أكمل البيانات"); return; }
+    
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: {"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify({name, phone, city})
+      });
+    
+      const data = await res.json();
+      if(!data.ok){
+        alert("صار خطأ: " + data.error);
+        return;
+      }
+    
+      // هذا رابط تأكيد الاستلام الخاص بالمستخدم
+      document.getElementById("confirmLink").value = data.confirmUrl;
+      document.getElementById("success").style.display = "block";
+    }
+
+    
+
 </script>
 
 </body>

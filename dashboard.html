@@ -1,0 +1,30 @@
+<div>
+    <h2>Dashboard</h2>
+    <div id="cards"></div>
+  </div>
+  
+  <script>
+  const SCRIPT_URL = "PUT_YOUR_WEB_APP_URL_HERE";
+  
+  function renderStats(s){
+    document.getElementById("cards").innerHTML = `
+      <p>المسجلين: <b>${s.total}</b></p>
+      <p>تم الاستلام: <b>${s.received}</b></p>
+      <p>المتبقي: <b>${s.remaining}</b></p>
+      <hr>
+      <p>الدمام: ${s.byCity["الدمام"].received}/${s.byCity["الدمام"].total}</p>
+      <p>الخبر: ${s.byCity["الخبر"].received}/${s.byCity["الخبر"].total}</p>
+      <p>الظهران: ${s.byCity["الظهران"].received}/${s.byCity["الظهران"].total}</p>
+    `;
+  }
+  
+  (function load(){
+    const cb = "cb_" + Date.now();
+    window[cb] = (data)=>{ renderStats(data); delete window[cb]; };
+  
+    const script = document.createElement("script");
+    script.src = SCRIPT_URL + `?action=stats&callback=${cb}`;
+    document.body.appendChild(script);
+  })();
+  </script>
+  
