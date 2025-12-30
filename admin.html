@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة إرسال تأكيد الاستلام</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f3f4f6; --card:#fff; --text:#111827; --sub:#6b7280;
+      --muted:#e5e7eb; --primary:#111827; --shadow:0 16px 30px rgba(0,0,0,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tajawal,system-ui;background:var(--bg);color:var(--text);padding:18px}
+    .wrap{max-width:980px;margin:0 auto}
+    .top{
+      background:var(--card);border:1px solid rgba(17,24,39,.08);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px
+    }
+    h1{margin:0;font-size:18px;font-weight:900}
+    .sub{margin:6px 0 0;color:var(--sub);font-size:13px;line-height:1.7}
+    .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .pill{
+      background:#f9fafb;border:1px solid var(--muted);border-radius:999px;
+      padding:8px 12px;font-weight:900;font-size:13px
+    }
+    .card{
+      background:var(--card);border:1px solid rgba(17,24,39,.08);border-radius:var(--radius);
+      box-shadow:var(--shadow);overflow:hidden
+    }
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;padding:14px 14px;border-bottom:1px solid var(--muted)}
+    button{
+      border:none;border-radius:12px;padding:12px 14px;font-weight:900;cursor:pointer;font-family:inherit
+    }
+    .btn{background:var(--primary);color:#fff}
+    .btnGhost{background:#f3f4f6;color:#111827;border:1px solid var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:12px 12px;border-bottom:1px solid #eef2f7;font-size:13px;vertical-align:middle}
+    th{background:#fafafa;text-align:right;font-weight:900}
+    .wa{
+      background:#111827;color:#fff;text-decoration:none;display:inline-block;
+      padding:10px 12px;border-radius:12px;font-weight:900
+    }
+    .muted{color:var(--sub)}
+    .empty{padding:18px;text-align:center;color:var(--sub);font-weight:900}
+    .err{padding:14px;margin:14px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;font-weight:900;display:none}
+    code{direction:ltr;unicode-bidi:bidi-override}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>لوحة إرسال تأكيد الاستلام</h1>
+      <div class="sub">تعرض المسجلين (Registered) وتجهّز لك رسالة واتساب فيها رابط تأكيد الاستلام لكل شخص.</div>
+      <div class="stats">
+        <div class="pill">المسجلين بانتظار الاستلام: <span id="pending">0</span></div>
+      </div>
+      <div id="err" class="err"></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn" onclick="loadData()">تحديث القائمة</button>
+        <button class="btnGhost" onclick="openStats()">فتح إحصائيات سريعة</button>
+      </div>
+
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+
+<script>
+  // ✅ حطي رابطك هنا
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjizj07iHIioljYfm5Nq4Qssvck6CRchEqWm-g-cZz4Y0YR6ip6LtmuLCNFLlaYI6y/exec";
+
+  function jsonp(url){
+    return new Promise((resolve, reject)=>{
+      const cb = "cb_" + Math.random().toString(36).slice(2);
+      window[cb] = (data)=>{ cleanup(); resolve(data); };
+
+      const s = document.createElement("script");
+      s.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+      s.onerror = ()=>{ cleanup(); reject(new Error("JSONP failed")); };
+
+      function cleanup(){
+        delete window[cb];
+        s.remove();
+      }
+      document.body.appendChild(s);
+    });
+  }
+
+  function waLink(mobile, msg){
+    // نحاول نوحد رقم الجوال: لو بدأ بـ 05 نخليه 9665...
+    let m = (mobile||"").trim();
+    if (m.startsWith("05")) m = "966" + m.slice(1);
+    // لو المستخدم كتب 966... نخليه كما هو
+    m = m.replace(/\s+/g,"");
+    return "https://wa.me/" + encodeURIComponent(m) + "?text=" + encodeURIComponent(msg);
+  }
+
+  function openStats(){
+    const url = SCRIPT_URL + "?action=stats&callback=cb";
+    window.open(url, "_blank");
+  }
+
+  async function loadData(){
+    const errBox = document.getElementById("err");
+    errBox.style.display = "none";
+    document.getElementById("tableWrap").innerHTML = `<div class="empty">جارٍ التحميل...</div>`;
+
+    try{
+      const data = await jsonp(SCRIPT_URL + "?action=list");
+      if(!data.ok) throw new Error(data.error || "Unknown error");
+
+      const rows = data.rows || [];
+      document.getElementById("pending").textContent = rows.length;
+
+      if(rows.length === 0){
+        document.getElementById("tableWrap").innerHTML = `<div class="empty">لا يوجد مسجلين بانتظار الاستلام 🎉</div>`;
+        return;
+      }
+
+      const html = `
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الجوال</th>
+              <th>المدينة</th>
+              <th>العدد</th>
+              <th>واتساب</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>{
+              const confirmUrl = SCRIPT_URL + "?action=confirm&token=" + encodeURIComponent(r.token);
+              const msg =
+`مرحباً ${r.name}،
+تم تجهيز طلبك (${r.count}) في ${r.city}.
+فضلاً أكد الاستلام عبر الرابط التالي:
+${confirmUrl}`;
+
+              const link = waLink(r.mobile, msg);
+
+              return `
+                <tr>
+                  <td><strong>${escapeHtml(r.name||"-")}</strong></td>
+                  <td class="muted" dir="ltr">${escapeHtml(r.mobile||"-")}</td>
+                  <td>${escapeHtml(r.city||"-")}</td>
+                  <td><strong>${escapeHtml(r.count||"-")}</strong></td>
+                  <td><a class="wa" href="${link}" target="_blank">إرسال واتساب</a></td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+      document.getElementById("tableWrap").innerHTML = html;
+
+    }catch(e){
+      document.getElementById("tableWrap").innerHTML = `<div class="empty">تعذر تحميل القائمة</div>`;
+      const errBox = document.getElementById("err");
+      errBox.style.display = "block";
+      errBox.innerHTML = `خطأ: ${escapeHtml(String(e.message||e))}<br><span class="muted">تأكدي أن رابط /exec صحيح وأن Web App منشور (Anyone).</span>`;
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  // تحميل تلقائي
+  loadData();
+</script>
+</body>
+</html>
