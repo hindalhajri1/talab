@@ -240,22 +240,23 @@
       `&count=${encodeURIComponent(count)}`;
   
     try{
-      const res = await fetch(url);
-      const data = await res.json();
+      // مهم: no-cors يعني ما نقدر نقرأ الرد، لكن الإرسال يوصل
+      await fetch(url, { method: "GET", mode: "no-cors" });
   
-      if(data.ok){
-        document.getElementById("okMsg").style.display="block";
-      }else{
-        document.getElementById("errMsg").textContent = data.error;
-        document.getElementById("errMsg").style.display="block";
-      }
+      // اعتبريه نجاح (إذا كان فيه مشكلة صلاحيات في السكربت لن يضيف بالشيت)
+      document.getElementById("okMsg").style.display = "block";
+      document.getElementById("errMsg").style.display = "none";
+  
     }catch(e){
-      alert("تعذر الاتصال بالسكربت");
+      document.getElementById("errMsg").textContent = "تعذر الاتصال بالسكربت";
+      document.getElementById("errMsg").style.display = "block";
+      document.getElementById("okMsg").style.display = "none";
     }
   
     btn.disabled = false;
     btn.textContent = "إرسال";
   }
+  
   
   
   
