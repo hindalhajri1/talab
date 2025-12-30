@@ -189,6 +189,13 @@
     </div>
   </div>
 
+
+  fetch("https://script.google.com/macros/s/AKfycbw79t8X8g5M3nl-hvra3VS7-9Wy-DERczqWyYipuqhHvufMzK4D-eZciRx7tkl1-jyN/exec",{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({name:"test", mobile:"0500000000", city:"الدمام", count:1})
+  }).then(r=>r.json()).then(console.log).catch(console.error);
+  
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw79t8X8g5M3nl-hvra3VS7-9Wy-DERczqWyYipuqhHvufMzK4D-eZciRx7tkl1-jyN/exec"; // <-- حطي رابطك /exec
 
@@ -212,52 +219,47 @@
   }
 
   async function submitForm(){
-    const btn = document.getElementById("submitBtn");
+    const btn = document.querySelector(".btnPrimary");
     btn.disabled = true;
     btn.textContent = "جارٍ الإرسال...";
   
-    showMsg("none");
-    document.getElementById("confirmLink").style.display = "none";
-  
     const name   = document.getElementById("name").value.trim();
     const mobile = document.getElementById("mobile").value.trim();
-    const city   = document.getElementById("city").value;   // ما يحتاج trim
-    const count  = Number(document.getElementById("count").value || 0);
+    const city   = document.getElementById("city").value;
+    const count  = document.getElementById("count").value;
   
     if(!name || !mobile || !city || !count){
-      showMsg("err","فضلاً اكملي جميع الحقول");
+      alert("فضلاً اكملي جميع الحقول");
       btn.disabled = false;
       btn.textContent = "إرسال";
       return;
     }
   
-    try {
-      const res = await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type":"text/plain;charset=utf-8" },
-        body: JSON.stringify({ name, mobile, city, count })
-      });
+    const url =
+      SCRIPT_URL +
+      `?name=${encodeURIComponent(name)}` +
+      `&mobile=${encodeURIComponent(mobile)}` +
+      `&city=${encodeURIComponent(city)}` +
+      `&count=${encodeURIComponent(count)}`;
   
+    try{
+      const res = await fetch(url);
       const data = await res.json();
   
-      if(!data.ok){
-        showMsg("err", "خطأ: " + data.error);
-      } else {
-        showMsg("ok");
-        // لو تبين تعرضين رابط التأكيد للاختبار:
-        const c = document.getElementById("confirmLink");
-        c.value = data.confirmUrl || "";
-        c.style.display = data.confirmUrl ? "block" : "none";
+      if(data.ok){
+        document.getElementById("okMsg").style.display="block";
+      }else{
+        document.getElementById("errMsg").textContent = data.error;
+        document.getElementById("errMsg").style.display="block";
       }
-  
-    } catch(e){
-      showMsg("err","تعذر الاتصال بالسكربت");
-      console.error(e);
+    }catch(e){
+      alert("تعذر الاتصال بالسكربت");
     }
   
     btn.disabled = false;
     btn.textContent = "إرسال";
   }
+  
   
   
 </script>
