@@ -116,48 +116,31 @@
     // console.log("confirmUrl:", res.confirmUrl);
   };
 
-  function submitForm(){
-    const btn = document.getElementById("sendBtn");
-    btn.disabled = true;
-    btn.textContent = "جارٍ الإرسال...";
-
-    const name = document.getElementById("name").value.trim();
-    const mobile = document.getElementById("mobile").value.trim();
-    const city = document.getElementById("city").value.trim();
-    const count = Number(document.getElementById("count").value || 0);
-
-    if(!name || !mobile || !city || !count){
-      btn.disabled = false;
-      btn.textContent = "إرسال";
-      show("err", "فضلاً اكملي جميع الحقول");
-      return;
-    }
-
-    show("none");
-
-    // JSONP: نضيف <script> ونستقبل الرد في handleSubmit
-    const url =
-      SCRIPT_URL +
-      "?action=submit" +
-      "&callback=handleSubmit" +
-      "&name=" + encodeURIComponent(name) +
-      "&mobile=" + encodeURIComponent(mobile) +
-      "&city=" + encodeURIComponent(city) +
-      "&count=" + encodeURIComponent(count) +
-      "&_=" + Date.now(); // لمنع الكاش
-
-    const s = document.createElement("script");
-    s.src = url;
-    s.onerror = () => {
-      btn.disabled = false;
-      btn.textContent = "إرسال";
-      show("err", "تعذر الاتصال بالسكربت");
+  async function submitForm() {
+    const payload = {
+      name: document.querySelector("#name").value.trim(),
+      mobile: document.querySelector("#mobile").value.trim(),
+      city: document.querySelector("#city").value,
+      count: Number(document.querySelector("#count").value || 1),
     };
-    document.body.appendChild(s);
-
-    // تنظيف السكربت بعد التحميل
-    s.onload = () => setTimeout(()=> s.remove(), 1000);
+  
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || "Failed");
+  
+    // نجاح
+    // data = { ok:true, token:"..." }
+    alert("تم تسجيل بياناتك بنجاح ✅");
   }
+  
+
+
+
 </script>
 </body>
 </html>
