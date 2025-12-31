@@ -2,9 +2,14 @@
     <h2>Dashboard</h2>
     <div id="cards"></div>
   </div>
+ 
   <script>
     async function loadDashboard() {
-      const res = await fetch("/api/stats");
+      const res = await fetch("/dashboard/api/stats", {
+        method: "GET",
+        credentials: "include" // مهم عشان يرسل كوكي Access
+      });
+  
       if (!res.ok) {
         document.body.innerHTML = "غير مصرح بالدخول";
         return;
@@ -12,10 +17,13 @@
   
       const data = await res.json();
       console.log("STATS:", data);
+  
+      // هنا لاحقًا نربطها بعناصر الصفحة ونحط الأرقام مكانها
     }
   
     loadDashboard();
   </script>
+  
   
   <script>
   const SCRIPT_URL = "PUT_YOUR_WEB_APP_URL_HERE";
