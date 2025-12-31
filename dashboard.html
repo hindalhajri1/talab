@@ -2,6 +2,20 @@
     <h2>Dashboard</h2>
     <div id="cards"></div>
   </div>
+  <script>
+    async function loadDashboard() {
+      const res = await fetch("/api/stats");
+      if (!res.ok) {
+        document.body.innerHTML = "غير مصرح بالدخول";
+        return;
+      }
+  
+      const data = await res.json();
+      console.log("STATS:", data);
+    }
+  
+    loadDashboard();
+  </script>
   
   <script>
   const SCRIPT_URL = "PUT_YOUR_WEB_APP_URL_HERE";
