@@ -25,7 +25,7 @@ export async function onRequest(context) {
   `).all();
 
   const latestRes = await db.prepare(`
-    SELECT id, name, city, status, created_at
+    SELECT id, name, mobile, city, status, created_at
     FROM requests
     ORDER BY created_at DESC
     LIMIT 10
