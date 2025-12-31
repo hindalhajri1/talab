@@ -1,54 +1,110 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لوحة التحكم</title>
   <style>
-    body { font-family: Arial; direction: rtl; padding: 20px; }
-    .cards { display: flex; gap: 20px; }
-    .card {
-      padding: 20px;
-      background: #f4f6f8;
-      border-radius: 10px;
-      min-width: 150px;
-      text-align: center;
-      font-size: 18px;
-    }
-    table { width: 100%; margin-top: 30px; border-collapse: collapse; }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:#f6f7fb; margin:0; color:#111}
+    .wrap{max-width:1100px; margin:40px auto; padding:0 16px}
+    h1{margin:0 0 18px; font-size:28px}
+    .grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px}
+    .card{background:#fff; border:1px solid #e7e7ef; border-radius:14px; padding:16px; box-shadow:0 6px 22px rgba(15,23,42,.06)}
+    .label{color:#6b7280; font-size:13px}
+    .num{font-size:28px; font-weight:800; margin-top:8px}
+    .row{display:grid; grid-template-columns:1.1fr .9fr; gap:14px; margin-top:14px}
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:12px 10px; border-bottom:1px solid #eee; font-size:14px}
+    th{color:#6b7280; font-weight:600; text-align:right}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; background:#eef2ff}
+    .muted{color:#6b7280}
+    .actions{display:flex; gap:10px; justify-content:flex-start; margin-top:12px}
+    button{border:0; padding:10px 14px; border-radius:10px; cursor:pointer}
+    .btn{background:#111827; color:#fff}
+    .btn2{background:#fff; border:1px solid #e7e7ef}
+    @media (max-width:900px){.grid{grid-template-columns:1fr} .row{grid-template-columns:1fr}}
   </style>
 </head>
 
 <body>
-  <h1>لوحة التحكم</h1>
+  <div class="wrap">
+    <h1>لوحة التحكم</h1>
 
-  <div class="cards" id="cards"></div>
+    <!-- كروت الاحصائيات -->
+    <div class="grid">
+      <div class="card">
+        <div class="label">إجمالي الطلبات</div>
+        <div id="total" class="num">—</div>
+      </div>
+      <div class="card">
+        <div class="label">بانتظار التأكيد</div>
+        <div id="pending" class="num">—</div>
+      </div>
+      <div class="card">
+        <div class="label">تم التأكيد</div>
+        <div id="confirmed" class="num">—</div>
+      </div>
+    </div>
 
-  <h2>حسب المدينة</h2>
-  <div id="byCity"></div>
+    <div class="row">
+      <!-- حسب المدينة -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div>
+            <div class="label">حسب المدينة</div>
+            <div class="muted" style="margin-top:6px">توزيع الطلبات (إجمالي/مؤكد/معلق)</div>
+          </div>
+          <span class="pill" id="lastUpdated">—</span>
+        </div>
 
-  <h2>آخر الطلبات</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>الاسم</th>
-        <th>المدينة</th>
-        <th>الحالة</th>
-        <th>التاريخ</th>
-      </tr>
-    </thead>
-    <tbody id="latest"></tbody>
-  </table>
+        <div id="cities" style="margin-top:12px; display:grid; gap:10px"></div>
+
+        <div class="actions">
+          <button class="btn" onclick="loadDashboard()">تحديث</button>
+          <button class="btn2" onclick="logout()">تسجيل خروج</button>
+        </div>
+      </div>
+
+      <!-- آخر الطلبات -->
+      <div class="card">
+        <div class="label">آخر الطلبات</div>
+        <div style="overflow:auto; margin-top:10px">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>المدينة</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+              </tr>
+            </thead>
+            <tbody id="latestRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    async function loadDashboard() {
-      fetch("/api/stats", {
-        credentials: "include"
-      });
-      
+    function fmtDate(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString('ar-SA', { hour12: true });
+      }catch(e){ return iso; }
+    }
 
-      if (!res.ok) {
+    function statusLabel(s){
+      // عدليها لاحقًا حسب الحالات النهائية
+      if (s === "Registered") return "مسجّل";
+      if (s === "Confirmed") return "مؤكد";
+      return s || "-";
+    }
+
+    async function loadDashboard(){
+      const res = await fetch("/api/stats", { credentials: "include" });
+
+      if (!res.ok){
         document.body.innerHTML = "غير مصرح بالدخول";
         return;
       }
@@ -56,29 +112,53 @@
       const data = await res.json();
 
       // الكروت
-      document.getElementById("cards").innerHTML = `
-        <div class="card">إجمالي<br><b>${data.cards.total}</b></div>
-        <div class="card">مؤكدة<br><b>${data.cards.confirmed}</b></div>
-        <div class="card">غير مؤكدة<br><b>${data.cards.pending}</b></div>
-      `;
+      document.getElementById("total").textContent = data.cards.total ?? 0;
+      document.getElementById("pending").textContent = data.cards.pending ?? 0;
+      document.getElementById("confirmed").textContent = data.cards.confirmed ?? 0;
 
       // حسب المدينة
-      document.getElementById("byCity").innerHTML =
-        data.byCity.map(c =>
-          `<p>${c.city}: ${c.confirmed}/${c.total}</p>`
-        ).join("");
+      const citiesWrap = document.getElementById("cities");
+      citiesWrap.innerHTML = "";
+      (data.byCity || []).forEach(c => {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.style.boxShadow = "none";
+        el.style.borderRadius = "12px";
+        el.style.padding = "12px";
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>${c.city || "-"}</strong>
+            <span class="pill">إجمالي: ${c.total || 0}</span>
+          </div>
+          <div class="muted" style="margin-top:6px">
+            مؤكد: ${c.confirmed || 0} — معلق: ${c.pending || 0}
+          </div>
+        `;
+        citiesWrap.appendChild(el);
+      });
 
       // آخر الطلبات
-      document.getElementById("latest").innerHTML =
-        data.latest.map(r =>
-          `<tr>
-            <td>${r.id}</td>
-            <td>${r.name}</td>
-            <td>${r.city}</td>
-            <td>${r.status}</td>
-            <td>${new Date(r.created_at).toLocaleString()}</td>
-          </tr>`
-        ).join("");
+      const tbody = document.getElementById("latestRows");
+      tbody.innerHTML = "";
+      (data.latest || []).forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.id ?? "-"}</td>
+          <td>${row.name ?? "-"}</td>
+          <td>${row.city ?? "-"}</td>
+          <td>${statusLabel(row.status)}</td>
+          <td class="muted">${fmtDate(row.created_at)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("lastUpdated").textContent =
+        "آخر تحديث: " + new Date().toLocaleTimeString('ar-SA', { hour12: true });
+    }
+
+    function logout(){
+      // Cloudflare Access logout (يطلعك من الجلسة)
+      location.href = "/cdn-cgi/access/logout";
     }
 
     loadDashboard();
