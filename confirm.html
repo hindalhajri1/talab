@@ -25,77 +25,7 @@
     .modal .mbtns{display:flex;gap:10px;justify-content:flex-start;margin-top:12px}
   </style>
 </head>
-<script>
-    const params = new URLSearchParams(location.search);
-    const token = params.get("token");
-  
-    const btnConfirm = document.getElementById("btnConfirm");
-    const btnCancel  = document.getElementById("btnCancel");
-    const msg = document.getElementById("msg");
-  
-    function setLoading(v) {
-      btnConfirm.disabled = v;
-      btnCancel.disabled  = v;
-      btnConfirm.style.opacity = v ? "0.6" : "1";
-      btnCancel.style.opacity  = v ? "0.6" : "1";
-    }
-  
-    function showFinal(decision, decidedAt) {
-      const text =
-        decision === "confirm"
-          ? "تم تأكيد طلبك بنجاح ✅ (لا يمكن تغيير القرار)"
-          : "تم إلغاء طلبك ✅ (لا يمكن تغيير القرار)";
-  
-      msg.innerHTML = `
-        <div style="font-size:18px;line-height:1.8;text-align:center">
-          ${text}<br/>
-          <small style="opacity:.7">وقت القرار: ${decidedAt || "-"}</small>
-        </div>
-      `;
-  
-      btnConfirm.style.display = "none";
-      btnCancel.style.display = "none";
-    }
-  
-    async function decide(action) {
-      if (!token) {
-        msg.textContent = "الرابط غير صالح.";
-        return;
-      }
-      if (btnConfirm.disabled || btnCancel.disabled) return; // منع الضغط المتكرر
-  
-      setLoading(true);
-      msg.textContent = "جارٍ تثبيت قرارك...";
-  
-      try {
-        const r = await fetch("/api/decide", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-          body: JSON.stringify({ token, action })
-        });
-  
-        const data = await r.json();
-  
-        if (!data.ok) {
-          setLoading(false);
-          msg.textContent = data.error === "NOT_FOUND"
-            ? "الرابط غير موجود أو منتهي."
-            : "تعذر تنفيذ العملية، حاول مرة أخرى.";
-          return;
-        }
-  
-        showFinal(data.decision, data.decided_at);
-      } catch (e) {
-        setLoading(false);
-        msg.textContent = "فشل الاتصال. تأكد من الإنترنت وحاول.";
-      }
-    }
-  
-    btnConfirm?.addEventListener("click", () => decide("confirm"));
-    btnCancel?.addEventListener("click", () => decide("cancel"));
-  </script>
-  
+
 <body>
   <div class="wrap">
     <div class="card">
@@ -123,5 +53,88 @@
       </div>
     </div>
   </div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get("token") || params.get("t");
+
+  
+      const btnConfirm = document.getElementById("btnConfirm");
+      const btnCancel  = document.getElementById("btnCancel");
+      const stateBox   = document.getElementById("stateBox");
+  
+      function showState(html, show = true) {
+        stateBox.innerHTML = html;
+        stateBox.style.display = show ? "block" : "none";
+      }
+  
+      function setLoading(v) {
+        btnConfirm.disabled = v;
+        btnCancel.disabled  = v;
+        btnConfirm.style.opacity = v ? "0.6" : "1";
+        btnCancel.style.opacity  = v ? "0.6" : "1";
+      }
+  
+      function showFinal(decision, decidedAt) {
+        const text =
+          decision === "confirm"
+            ? "تم تأكيد طلبك بنجاح ✅ (لا يمكن تغيير القرار)"
+            : "تم إلغاء طلبك ✅ (لا يمكن تغيير القرار)";
+  
+        showState(`
+          <div style="font-size:16px;line-height:1.9;text-align:center">
+            ${text}<br/>
+            <small style="opacity:.75">وقت القرار: ${decidedAt || "-"}</small>
+          </div>
+        `, true);
+  
+        btnConfirm.style.display = "none";
+        btnCancel.style.display  = "none";
+      }
+  
+      async function decide(action) {
+        if (!token) {
+          showState("الرابط غير صالح.", true);
+          return;
+        }
+        if (btnConfirm.disabled || btnCancel.disabled) return;
+  
+        setLoading(true);
+        showState("جارٍ تثبيت قرارك...", true);
+  
+        try {
+          const r = await fetch("/api/decide", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+            body: JSON.stringify({ token, action })
+          });
+  
+          const data = await r.json().catch(() => ({}));
+  
+          if (!r.ok || !data.ok) {
+            setLoading(false);
+            showState(
+              data.error === "NOT_FOUND"
+                ? "الرابط غير موجود أو منتهي."
+                : "تعذر تنفيذ العملية، حاول مرة أخرى.",
+              true
+            );
+            return;
+          }
+  
+          showFinal(data.decision, data.decided_at);
+        } catch (e) {
+          setLoading(false);
+          showState("فشل الاتصال. تأكد من الإنترنت وحاول.", true);
+        }
+      }
+  
+      btnConfirm.addEventListener("click", () => decide("confirm"));
+      btnCancel.addEventListener("click", () => decide("cancel"));
+    });
+  </script>  
 </body>
 </html>
