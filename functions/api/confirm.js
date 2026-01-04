@@ -1,27 +1,27 @@
 export async function onRequestGet({ request, env }) {
-    const url = new URL(request.url);
-    const token = (url.searchParams.get("token") || "").trim();
-    if (!token) return json({ ok: false, error: "Token مفقود" }, 400);
-  
-    const now = new Date().toISOString();
-  
-    const result = await env.DB.prepare(
-      `UPDATE requests
-       SET status='Received', confirmed_at=?
-       WHERE token=? AND (confirmed_at IS NULL OR confirmed_at='')`
-    ).bind(now, token).run();
-  
-    if (result.meta.changes === 0) {
-      return json({ ok: false, error: "الرابط غير صالح أو تم التأكيد مسبقًا" }, 404);
-    }
-  
-    return json({ ok: true, message: "تم تأكيد الاستلام بنجاح" });
+  const url = new URL(request.url);
+  const token = url.searchParams.get("token");
+
+  if (!token) {
+    return new Response("رمز غير صالح", { status: 400 });
   }
-  
-  function json(data, status = 200) {
-    return new Response(JSON.stringify(data), {
-      status,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
+
+  // تحديث الحالة في قاعدة البيانات
+  const result = await env.DB.prepare(`
+    UPDATE requests
+    SET status = 'Confirmed',
+        confirmed_at = datetime('now')
+    WHERE token = ? AND status != 'Confirmed'
+  `).bind(token).run();
+
+  if (result.changes === 0) {
+    return new Response("تم التأكيد مسبقًا أو الرابط غير صحيح", {
+      status: 404,
     });
   }
-  
+
+  return new Response(
+    JSON.stringify({ ok: true }),
+    { headers: { "content-type": "application/json; charset=utf-8" } }
+  );
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تأكيد الاستلام</title>
+  <style>
+    body {
+      font-family: system-ui;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f7f7f7;
+    }
+    .box {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+      width: 320px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      border: none;
+      background: #003b71;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h3>تأكيد الاستلام</h3>
+    <p>اضغط الزر لتأكيد استلام طلب الرز</p>
+    <button onclick="confirm()">تأكيد الاستلام</button>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    async function confirm() {
+      const token = new URLSearchParams(location.search).get("token");
+      if (!token) {
+        document.getElementById("msg").textContent = "رابط غير صالح";
+        return;
+      }
+
+      const res = await fetch(`/api/confirm?token=${token}`);
+      const msg = document.getElementById("msg");
+
+      if (res.ok) {
+        msg.textContent = "تم تأكيد الاستلام بنجاح ✅";
+      } else {
+        msg.textContent = "تم التأكيد مسبقًا أو الرابط غير صحيح";
+      }
+    }
+  </script>
+</body>
+</html>
