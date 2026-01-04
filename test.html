@@ -1,0 +1,451 @@
+// ✅ CSS للكروت (يتركب مرة وحدة فقط)
+if (!document.getElementById("beneficiary-summary-style")) {
+  const style = document.createElement("style");
+  style.id = "beneficiary-summary-style";
+  style.innerHTML = `
+    /* Wrapper */
+    .bs-row{
+      display:flex;
+      flex-wrap:nowrap;           /* ✅ كلها بنفس السطر */
+      gap:12px;
+      align-items:stretch;
+      justify-content:flex-start;
+      overflow-x:auto;            /* ✅ إذا كثرت البطاقات يصير سكرول أفقي */
+      padding:8px 4px 12px;
+      scroll-behavior:smooth;
+    }
+    .bs-row::-webkit-scrollbar{height:8px}
+    .bs-row::-webkit-scrollbar-thumb{border-radius:8px;background:#d7dbe2}
+    .bs-row::-webkit-scrollbar-track{background:transparent}
+
+    /* Card */
+    .bs-card{
+      flex:0 0 150px;             /* ✅ عرض ثابت لكل بطاقة */
+      background:#fff;
+      border:1.5px solid #e6eaf0;
+      border-radius:14px;
+      padding:12px 12px 10px;
+      box-shadow:0 6px 18px rgba(17,24,39,.06);
+      transition:all .18s ease;
+      cursor:default;
+      user-select:none;
+    }
+    .bs-card.is-clickable{cursor:pointer}
+
+    .bs-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 26px rgba(17,24,39,.10);
+      border-color:var(--c);
+      outline:3px solid color-mix(in srgb, var(--c) 18%, transparent);
+    }
+
+    .bs-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .bs-icon{
+      width:38px;height:38px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:color-mix(in srgb, var(--c) 12%, white);
+      border:1px solid color-mix(in srgb, var(--c) 24%, #e6eaf0);
+    }
+    .bs-icon i{font-size:18px;color:var(--c)}
+
+    .bs-count{
+      font-size:18px;
+      font-weight:800;
+      color:#111827;
+      line-height:1;
+    }
+    .bs-sub{
+      font-size:12px;
+      color:#6b7280;
+      margin-top:2px;
+    }
+
+    .bs-label{
+      font-size:13px;
+      font-weight:700;
+      color:#111827;
+      margin-top:6px;
+      text-align:right;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+
+var html_content = `
+  <div class="bs-row">
+
+    <div class="bs-card is-clickable clickable-section" data-section="التابعين" style="--c:#003366">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${affiliates_count}</div>
+          <div class="bs-sub">إجمالي</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-users"></i></div>
+      </div>
+      <div class="bs-label">التابعين</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-section" data-section="أرشفة المستندات" style="--c:#28a745">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${attachments_count}</div>
+          <div class="bs-sub">مرفق</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-file-alt"></i></div>
+      </div>
+      <div class="bs-label">المرفقات</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-card" data-route="Benefit Operation" style="--c:#ffc107">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${services_count}</div>
+          <div class="bs-sub">خدمة</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-hand-holding-heart"></i></div>
+      </div>
+      <div class="bs-label">الخدمات</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-card" data-route="decision" style="--c:#dc3545">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${decisions_count}</div>
+          <div class="bs-sub">قرار</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-balance-scale"></i></div>
+      </div>
+      <div class="bs-label">القرارات</div>
+    </div>
+
+    <div class="bs-card" style="--c:#007bff">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${need_percentage}%</div>
+          <div class="bs-sub">نسبة</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-chart-line"></i></div>
+      </div>
+      <div class="bs-label">نسبة الاحتياج</div>
+    </div>
+
+    <div class="bs-card" style="--c:#17a2b8">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${frm.doc.تقدير_الاحتياج || "-"}</div>
+          <div class="bs-sub">تقييم</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-star"></i></div>
+      </div>
+      <div class="bs-label">تقدير الاحتياج</div>
+    </div>
+
+    <div class="bs-card" style="--c:#6f42c1">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${housing_status}</div>
+          <div class="bs-sub">السكن</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-home"></i></div>
+      </div>
+      <div class="bs-label">حالة السكن</div>
+    </div>
+
+    <div class="bs-card" style="--c:#17a2b8">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${city}</div>
+          <div class="bs-sub">الموقع</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-map-marker"></i></div>
+      </div>
+      <div class="bs-label">المدينة</div>
+    </div>
+
+  </div>
+`;
+frm.fields_dict.beneficiary_summary.$wrapper.html(html_content);
+
+const $w = frm.fields_dict.beneficiary_summary.$wrapper;
+
+// ✅ تنقّل للقوائم
+$w.off('click', '.clickable-card').on('click', '.clickable-card', function () {
+  var doctype = $(this).attr("data-route");
+  frappe.set_route("List", doctype, { beneficiary: frm.doc.name });
+});
+
+// ✅ سكرول للأقسام
+$w.off('click', '.clickable-section').on('click', '.clickable-section', function () {
+  var section_name = $(this).attr("data-section");
+  scrollToSection(section_name);
+});
+
+
+
+
+
+frappe.ui.form.on("Beneficiary", {
+    refresh: function(frm) {
+        // تحميل مكتبة Font Awesome إذا لم تكن محملة
+        if (!document.getElementById("font-awesome")) {
+            var link = document.createElement("link");
+            link.id = "font-awesome";
+            link.rel = "stylesheet";
+            link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+            document.head.appendChild(link);
+        }
+
+        if (!document.getElementById("beneficiary-summary-style")) {
+          const style = document.createElement("style");
+          style.id = "beneficiary-summary-style";
+          style.innerHTML = `
+            /* Wrapper */
+            .bs-row{
+              display:flex;
+              flex-wrap:nowrap;          
+              gap:12px;
+              align-items:stretch;
+              justify-content:center;
+              overflow-x:auto;           
+              padding:8px 4px 12px;
+              scroll-behavior:smooth;
+            }
+            .bs-row::-webkit-scrollbar{height:8px}
+            .bs-row::-webkit-scrollbar-thumb{border-radius:8px;background:#d7dbe2}
+            .bs-row::-webkit-scrollbar-track{background:transparent}
+        
+            /* Card */
+            .bs-card{
+                flex:0 1 160px;
+                max-width:200px;              
+              background:#fff;
+              border:1.5px solid #e6eaf0;
+              border-radius:14px;
+              padding:12px 12px 10px;
+              box-shadow:0 6px 18px rgba(17,24,39,.06);
+              transition:all .18s ease;
+              cursor:default;
+              user-select:none;
+              
+            }
+            .bs-card.is-clickable{cursor:pointer}
+        
+            .bs-card:hover{
+              transform:translateY(-2px);
+              box-shadow:0 10px 26px rgba(17,24,39,.10);
+              border-color:var(--c);
+              outline:3px solid color-mix(in srgb, var(--c) 18%, transparent);
+            }
+        
+            .bs-top{
+              display:flex;
+              align-items:center;
+              justify-content:space-between;
+              gap:10px;
+              margin-bottom:8px;
+            }
+            .bs-icon{
+              width:38px;height:38px;
+              border-radius:12px;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              background:color-mix(in srgb, var(--c) 12%, white);
+              border:1px solid color-mix(in srgb, var(--c) 24%, #e6eaf0);
+            }
+            .bs-icon i{font-size:18px;color:var(--c)}
+        
+            .bs-count{
+              font-size:18px;
+              font-weight:800;
+              color:#111827;
+              line-height:1;
+            }
+            .bs-sub{
+              font-size:12px;
+              color:#6b7280;
+              margin-top:2px;
+            }
+        
+            .bs-label{
+              font-size:13px;
+              font-weight:700;
+              color:#111827;
+              margin-top:6px;
+              text-align:right;
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
+
+        frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "Beneficiary Affiliates", filters: { parent: frm.doc.name } },
+            callback: function(r) {
+                var affiliates_count = r.message || 0;
+
+                frappe.call({
+                    method: "frappe.client.get_count",
+                    args: { doctype: "Document", filters: { parent: frm.doc.name } },
+                    callback: function(r) {
+                        var attachments_count = r.message || 0;
+
+                        frappe.call({
+                            method: "frappe.client.get_count",
+                            args: { doctype: "Benefit Operation", filters: { beneficiary: frm.doc.name } },
+                            callback: function(r) {
+                                var services_count = r.message || 0;
+
+                                frappe.call({
+                                    method: "frappe.client.get_count",
+                                    args: { doctype: "decision", filters: { beneficiary: frm.doc.name } },
+                                    callback: function(r) {
+                                        var decisions_count = r.message || 0;
+
+                                        // استرداد نسبة الاحتياج بدون فواصل عشرية
+                                        var need_percentage = Math.round(frm.doc.النسبة_المئوية_للاحتياج || 0);
+                                        var housing_status = frm.doc.housing_ownership || "-";
+                                        var city = frm.doc.city || "-";
+                                        
+var html_content = `
+  <div class="bs-row">
+
+    <div class="bs-card is-clickable clickable-section" data-section="التابعين" style="--c:#003366">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${affiliates_count}</div>
+          <div class="bs-sub">إجمالي</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-users"></i></div>
+      </div>
+      <div class="bs-label">التابعين</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-section" data-section="أرشفة المستندات" style="--c:#28a745">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${attachments_count}</div>
+          <div class="bs-sub">مرفق</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-file-alt"></i></div>
+      </div>
+      <div class="bs-label">المرفقات</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-card" data-route="Benefit Operation" style="--c:#ffc107">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${services_count}</div>
+          <div class="bs-sub">خدمة</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-hand-holding-heart"></i></div>
+      </div>
+      <div class="bs-label">الخدمات</div>
+    </div>
+
+    <div class="bs-card is-clickable clickable-card" data-route="decision" style="--c:#dc3545">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${decisions_count}</div>
+          <div class="bs-sub">قرار</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-balance-scale"></i></div>
+      </div>
+      <div class="bs-label">القرارات</div>
+    </div>
+
+    <div class="bs-card" style="--c:#007bff">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${need_percentage}%</div>
+          <div class="bs-sub">نسبة</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-chart-line"></i></div>
+      </div>
+      <div class="bs-label">نسبة الاحتياج</div>
+    </div>
+
+    <div class="bs-card" style="--c:#17a2b8">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${frm.doc.تقدير_الاحتياج || "-"}</div>
+          <div class="bs-sub">تقييم</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-star"></i></div>
+      </div>
+      <div class="bs-label">تقدير الاحتياج</div>
+    </div>
+
+    <div class="bs-card" style="--c:#6f42c1">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${housing_status}</div>
+          <div class="bs-sub">السكن</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-home"></i></div>
+      </div>
+      <div class="bs-label">حالة السكن</div>
+    </div>
+
+    <div class="bs-card" style="--c:#17a2b8">
+      <div class="bs-top">
+        <div>
+          <div class="bs-count">${city}</div>
+          <div class="bs-sub">الموقع</div>
+        </div>
+        <div class="bs-icon"><i class="fa fa-map-marker"></i></div>
+      </div>
+      <div class="bs-label">المدينة</div>
+    </div>
+
+  </div>
+`;
+frm.fields_dict.beneficiary_summary.$wrapper.html(html_content);
+
+
+                                        
+                                        `;
+
+                                        const $w = frm.fields_dict.beneficiary_summary.$wrapper;
+
+                                        // ✅ تنقّل للقوائم
+                                        $w.off('click', '.clickable-card').on('click', '.clickable-card', function () {
+                                          var doctype = $(this).attr("data-route");
+                                          frappe.set_route("List", doctype, { beneficiary: frm.doc.name });
+                                        });
+                                        
+                                        // ✅ سكرول للأقسام
+                                        $w.off('click', '.clickable-section').on('click', '.clickable-section', function () {
+                                          var section_name = $(this).attr("data-section");
+                                          scrollToSection(section_name);
+                                        });
+                                        
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+});
+

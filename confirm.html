@@ -1,60 +1,340 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>تأكيد الاستلام</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;800;900&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: system-ui;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #f7f7f7;
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --primary:#111827;      /* أسود */
+      --ok:#16a34a;
+      --danger:#dc2626;
+      --shadow:0 14px 30px rgba(0,0,0,.10);
+      --r:18px;
     }
-    .box {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      text-align: center;
-      width: 320px;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Tajawal", system-ui, -apple-system, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
     }
-    button {
-      margin-top: 16px;
-      padding: 10px 20px;
-      border: none;
-      background: #003b71;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
+    .card{
+      width:100%;
+      max-width:460px;
+      background:var(--card);
+      border-radius:var(--r);
+      border:1px solid rgba(17,24,39,.08);
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
+    .top{
+      padding:18px 18px 12px;
+      text-align:center;
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(#fff,#fafafa);
+    }
+    .title{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+      color:var(--primary);
+    }
+    .sub{
+      margin:8px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .body{ padding:16px 18px 18px; }
+    .box{
+      background:#fafafa;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      text-align:center;
+    }
+    .big{
+      font-size:16px;
+      font-weight:900;
+      margin:0;
+    }
+    .small{
+      margin:8px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .actions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+    }
+    button{
+      width:100%;
+      border:0;
+      border-radius:12px;
+      padding:14px 12px;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+      font-family:inherit;
+    }
+    .btnOk{ background:var(--ok); color:#fff; }
+    .btnNo{ background:#fff; border:1px solid var(--border); color:var(--danger); }
+    .btnOk:disabled,.btnNo:disabled{opacity:.6; cursor:not-allowed}
+
+    .state{
+      margin-top:12px;
+      display:none;
+      padding:12px;
+      border-radius:12px;
+      font-weight:900;
+      text-align:center;
+    }
+    .state.ok{ background:#ecfdf5; border:1px solid #bbf7d0; color:#065f46; }
+    .state.no{ background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
+    .state.lock{ background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; }
+
+    /* modal */
+    .modal{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .modalCard{
+      width:100%;
+      max-width:420px;
+      background:#fff;
+      border-radius:16px;
+      border:1px solid rgba(17,24,39,.1);
+      box-shadow:0 20px 40px rgba(0,0,0,.2);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      font-weight:900;
+      text-align:center;
+    }
+    .modalBody{
+      padding:14px 16px;
+      text-align:center;
+      color:var(--muted);
+      font-weight:700;
+      line-height:1.7;
+      font-size:14px;
+    }
+    .modalActions{
+      padding:12px 16px 16px;
+      display:flex;
+      gap:10px;
+    }
+    .btnGhost{ background:#f3f4f6; color:#111827; border:1px solid var(--border); }
+    .btnMain{ background:var(--primary); color:#fff; }
   </style>
 </head>
+
 <body>
-  <div class="box">
-    <h3>تأكيد الاستلام</h3>
-    <p>اضغط الزر لتأكيد استلام طلب الرز</p>
-    <button onclick="confirm()">تأكيد الاستلام</button>
-    <p id="msg"></p>
+  <div class="card">
+    <div class="top">
+      <h1 class="title">تأكيد الاستلام</h1>
+      <p class="sub" id="subtitle">جاري تحميل الطلب…</p>
+    </div>
+
+    <div class="body">
+      <div class="box">
+        <p class="big" id="boxTitle">—</p>
+        <p class="small" id="boxText">—</p>
+      </div>
+
+      <div class="actions" id="actionButtons">
+        <button class="btnOk" id="btnConfirm">تأكيد الاستلام</button>
+        <button class="btnNo" id="btnCancel">إلغاء</button>
+      </div>
+
+      <div class="state ok" id="stateOk">✅ تم تأكيد الاستلام. شكرًا لك.</div>
+      <div class="state no" id="stateNo">❌ تم إلغاء الطلب.</div>
+      <div class="state lock" id="stateLock">ℹ️ تم اتخاذ قرار مسبقًا ولا يمكن التعديل.</div>
+    </div>
   </div>
 
-  <script>
-    async function confirm() {
-      const token = new URLSearchParams(location.search).get("token");
-      if (!token) {
-        document.getElementById("msg").textContent = "رابط غير صالح";
-        return;
-      }
+  <!-- Confirm modal -->
+  <div class="modal" id="modal">
+    <div class="modalCard">
+      <div class="modalHead" id="modalTitle">تأكيد</div>
+      <div class="modalBody" id="modalText">هل أنت متأكد؟</div>
+      <div class="modalActions">
+        <button class="btnGhost" id="modalNo">لا</button>
+        <button class="btnMain" id="modalYes">نعم</button>
+      </div>
+    </div>
+  </div>
 
-      const res = await fetch(`/api/confirm?token=${token}`);
-      const msg = document.getElementById("msg");
+<script>
+  const API_INFO = "/api/confirm";   // GET ?token=
+  const API_ACT  = "/api/confirm";   // POST {token, action}
 
-      if (res.ok) {
-        msg.textContent = "تم تأكيد الاستلام بنجاح ✅";
-      } else {
-        msg.textContent = "تم التأكيد مسبقًا أو الرابط غير صحيح";
-      }
+  const qs = new URLSearchParams(location.search);
+  const token = (qs.get("token") || "").trim();
+
+  const subtitle = document.getElementById("subtitle");
+  const boxTitle = document.getElementById("boxTitle");
+  const boxText  = document.getElementById("boxText");
+  const btns     = document.getElementById("actionButtons");
+  const btnConfirm = document.getElementById("btnConfirm");
+  const btnCancel  = document.getElementById("btnCancel");
+
+  const stateOk   = document.getElementById("stateOk");
+  const stateNo   = document.getElementById("stateNo");
+  const stateLock = document.getElementById("stateLock");
+
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalText  = document.getElementById("modalText");
+  const modalNo    = document.getElementById("modalNo");
+  const modalYes   = document.getElementById("modalYes");
+
+  let pendingAction = null; // "confirm" | "cancel"
+
+  function showState(kind){
+    stateOk.style.display = (kind==="ok") ? "block" : "none";
+    stateNo.style.display = (kind==="no") ? "block" : "none";
+    stateLock.style.display = (kind==="lock") ? "block" : "none";
+  }
+  function lockUI(){
+    btns.style.display = "none";
+    btnConfirm.disabled = true;
+    btnCancel.disabled = true;
+  }
+  function openModal(action){
+    pendingAction = action;
+    if(action==="confirm"){
+      modalTitle.textContent = "تأكيد الاستلام";
+      modalText.textContent  = "هل أنت متأكد أنك استلمت الطلب؟";
+    }else{
+      modalTitle.textContent = "إلغاء الطلب";
+      modalText.textContent  = "هل أنت متأكد أنك تريد الإلغاء؟";
     }
-  </script>
+    modal.style.display = "flex";
+  }
+  function closeModal(){
+    modal.style.display = "none";
+    pendingAction = null;
+  }
+
+  async function load(){
+    if(!token){
+      subtitle.textContent = "الرابط غير صحيح (token غير موجود).";
+      boxTitle.textContent = "تعذر فتح الصفحة";
+      boxText.textContent = "تأكد من الرابط المرسل لك.";
+      lockUI();
+      return;
+    }
+
+    const res = await fetch(`${API_INFO}?token=${encodeURIComponent(token)}`, { credentials:"include" });
+    const j = await res.json().catch(()=>({}));
+
+    if(!res.ok || !j.ok){
+      subtitle.textContent = "تعذر تحميل الطلب.";
+      boxTitle.textContent = "غير موجود";
+      boxText.textContent = "قد يكون الرابط غير صحيح أو منتهي.";
+      lockUI();
+      return;
+    }
+
+    const data = j.data || {};
+    const decision = data.decision; // null | CONFIRMED | CANCELLED
+
+    subtitle.textContent = "اختر الإجراء المناسب أدناه.";
+    boxTitle.textContent = data.name ? `مرحباً ${data.name}` : "مرحباً بك";
+    boxText.textContent  = "يرجى اختيار (تأكيد الاستلام) أو (إلغاء).";
+
+    if(decision === "CONFIRMED"){
+      boxText.textContent = "تم تأكيد الاستلام مسبقاً ✅";
+      showState("ok");
+      lockUI();
+      return;
+    }
+    if(decision === "CANCELLED"){
+      boxText.textContent = "تم إلغاء الطلب مسبقاً ❌";
+      showState("no");
+      lockUI();
+      return;
+    }
+  }
+
+  async function commit(action){
+    // قفل أثناء الإرسال
+    btnConfirm.disabled = true;
+    btnCancel.disabled = true;
+
+    const res = await fetch(API_ACT, {
+      method:"POST",
+      headers:{ "content-type":"application/json; charset=utf-8" },
+      body: JSON.stringify({ token, action }),
+      credentials:"include"
+    });
+
+    const j = await res.json().catch(()=>({}));
+
+    if(res.ok && j.ok){
+      if(j.decision === "CONFIRMED"){
+        showState("ok");
+        boxText.textContent = "تم تأكيد الاستلام ✅";
+      }else{
+        showState("no");
+        boxText.textContent = "تم إلغاء الطلب ❌";
+      }
+      lockUI();
+      return;
+    }
+
+    // لو سبق اتخاذ قرار
+    if(j && j.error === "ALREADY_DECIDED"){
+      showState("lock");
+      boxText.textContent = "تم اتخاذ قرار مسبقاً ولا يمكن التعديل.";
+      lockUI();
+      return;
+    }
+
+    // خطأ عام
+    showState("lock");
+    boxText.textContent = "حدث خطأ، حاول لاحقاً.";
+    lockUI();
+  }
+
+  // events
+  btnConfirm.addEventListener("click", ()=> openModal("confirm"));
+  btnCancel.addEventListener("click", ()=> openModal("cancel"));
+  modalNo.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+  modalYes.addEventListener("click", async ()=>{
+    const act = pendingAction;
+    closeModal();
+    await commit(act);
+  });
+
+  load();
+</script>
 </body>
 </html>
