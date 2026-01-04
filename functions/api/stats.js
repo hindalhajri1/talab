@@ -1,46 +1,58 @@
-export async function onRequest(context) {
-  const { env } = context;
-  const db = env.DB; // ✔️ binding الصحيح
+export async function onRequestGet({ env }) {
+  try {
+    // ✅ مهم: اسم الـ binding هنا لازم يطابق اللي حطيتيه في D1 binding داخل Cloudflare Pages
+    // إذا اسم البايندنق عندك "talab_db" خليه env.talab_db
+    // إذا اسم البايندنق عندك "DB" خليه env.DB
+    const db = env.talab_db; // <-- عدّليها لو اسم البايندنق مختلف
 
-  const totalRes = await db.prepare(
-    `SELECT COUNT(*) as total FROM requests`
-  ).first();
+    const totalRow = await db.prepare(`
+      SELECT COUNT(*) AS n FROM requests
+    `).first();
 
-  const confirmedRes = await db.prepare(
-    `SELECT COUNT(*) as confirmed FROM requests WHERE confirmed_at IS NOT NULL`
-  ).first();
+    const confirmedRow = await db.prepare(`
+      SELECT COUNT(*) AS n FROM requests
+      WHERE lower(status) IN ('confirmed','received')
+    `).first();
 
-  const pendingRes = await db.prepare(
-    `SELECT COUNT(*) as pending FROM requests WHERE confirmed_at IS NULL`
-  ).first();
+    const pendingRow = await db.prepare(`
+      SELECT COUNT(*) AS n FROM requests
+      WHERE lower(status) NOT IN ('confirmed','received')
+    `).first();
 
-  const byCityRes = await db.prepare(`
-    SELECT
-      city,
-      COUNT(*) as total,
-      SUM(CASE WHEN confirmed_at IS NOT NULL THEN 1 ELSE 0 END) as confirmed,
-      SUM(CASE WHEN confirmed_at IS NULL THEN 1 ELSE 0 END) as pending
-    FROM requests
-    GROUP BY city
-  `).all();
+    const byCity = await db.prepare(`
+      SELECT
+        city,
+        COUNT(*) AS total,
+        SUM(CASE WHEN lower(status) IN ('confirmed','received') THEN 1 ELSE 0 END) AS confirmed,
+        SUM(CASE WHEN lower(status) NOT IN ('confirmed','received') THEN 1 ELSE 0 END) AS pending
+      FROM requests
+      GROUP BY city
+      ORDER BY total DESC
+    `).all();
 
-  const latestRes = await db.prepare(`
-    SELECT id, name, mobile, city, status, created_at
-    FROM requests
-    ORDER BY created_at DESC
-    LIMIT 10
-  `).all();
+    const latest = await db.prepare(`
+      SELECT id, name, mobile, city, status, token, created_at
+      FROM requests
+      ORDER BY datetime(created_at) DESC
+      LIMIT 20
+    `).all();
 
-  return new Response(
-    JSON.stringify({
+    return new Response(JSON.stringify({
       cards: {
-        total: totalRes.total,
-        confirmed: confirmedRes.confirmed,
-        pending: pendingRes.pending,
+        total: totalRow?.n ?? 0,
+        confirmed: confirmedRow?.n ?? 0,
+        pending: pendingRow?.n ?? 0
       },
-      byCity: byCityRes.results,
-      latest: latestRes.results,
-    }),
-    { headers: { "Content-Type": "application/json" } }
-  );
+      byCity: byCity.results || [],
+      latest: latest.results || []
+    }), {
+      headers: { "content-type": "application/json; charset=utf-8" }
+    });
+
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "content-type": "application/json; charset=utf-8" }
+    });
+  }
 }
