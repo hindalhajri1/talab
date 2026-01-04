@@ -1,7 +1,3 @@
-function getJwt(request) {
-  return request.headers.get("cf-access-jwt-assertion");
-}
-
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -12,20 +8,41 @@ function json(data, status = 200) {
   });
 }
 
+function decodeJwtEmail(request) {
+  const jwt = request.headers.get("cf-access-jwt-assertion");
+  if (!jwt) return { ok: false };
+
+  try {
+    const parts = jwt.split(".");
+    if (parts.length !== 3) return { ok: false };
+
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
+    const claims = JSON.parse(atob(padded));
+
+    const email = claims.email || claims.upn || claims.sub || null;
+    const name =
+      claims.name || claims.nickname || (email ? email.split("@")[0] : "User");
+
+    return { ok: true, email, name, claims };
+  } catch {
+    return { ok: false };
+  }
+}
+
 function slugify(s) {
   return String(s || "")
     .trim()
     .toLowerCase()
-    .replace(/[\u0600-\u06FF]/g, "") // يشيل العربي من slug (اختياري)
+    .replace(/[\u0600-\u06FF]/g, "") // اختياري: يشيل العربي
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
 }
 
 export async function onRequestPost({ request, env }) {
-  // ✅ Cloudflare Access check
-  const jwt = getJwt(request);
-  if (!jwt) return json({ ok: false, error: "Unauthorized" }, 401);
+  const auth = decodeJwtEmail(request);
+  if (!auth.ok || !auth.email) return json({ ok: false, error: "Unauthorized" }, 401);
 
   try {
     const body = await request.json().catch(() => ({}));
@@ -37,27 +54,28 @@ export async function onRequestPost({ request, env }) {
     if (!slug) slug = slugify(name);
     if (!slug) slug = "form-" + crypto.randomUUID().slice(0, 8);
 
-    // ✅ منع التكرار
+    // ✅ منع تكرار الـ slug لنفس المالك
     const exists = await env.DB
-      .prepare("SELECT id FROM forms WHERE slug = ? LIMIT 1")
-      .bind(slug)
+      .prepare("SELECT id FROM forms WHERE owner_email = ? AND slug = ? LIMIT 1")
+      .bind(auth.email, slug)
       .first();
 
     if (exists) return json({ ok: false, error: "SLUG_EXISTS" }, 409);
 
     const now = new Date().toISOString();
 
-    const res = await env.DB
+    // ✅ إدخال الفورم مع owner_email
+    const ins = await env.DB
       .prepare(
-        `INSERT INTO forms (name, slug, is_active, created_at)
-         VALUES (?, ?, 1, ?)`
+        `INSERT INTO forms (name, slug, is_active, owner_email, created_at)
+         VALUES (?, ?, 1, ?, ?)`
       )
-      .bind(name, slug, now)
+      .bind(name, slug, auth.email, now)
       .run();
 
-    const id = res?.meta?.last_row_id;
+    const formId = ins?.meta?.last_row_id;
 
-    // ✅ إنشاء حقول افتراضية للفورم الجديد
+    // ✅ حقول افتراضية للفورم الجديد
     await env.DB.prepare(
       `INSERT INTO form_fields (form_id, label, field_type, required, options_json, sort_order, is_active, created_at)
        VALUES
@@ -65,13 +83,12 @@ export async function onRequestPost({ request, env }) {
        (?, 'الجوال',  'tel',    1, '{"key":"mobile"}', 2, 1, ?),
        (?, 'المدينة', 'text',   1, '{"key":"city"}',   3, 1, ?),
        (?, 'العدد',   'number', 1, '{"key":"count"}',  4, 1, ?)`
-    ).bind(id, now, id, now, id, now, id, now).run();
+    ).bind(formId, now, formId, now, formId, now, formId, now).run();
 
     return json({
       ok: true,
-      form: { id, name, slug, is_active: 1 }
+      form: { id: formId, name, slug, owner_email: auth.email, is_active: 1 },
     });
-
   } catch (e) {
     return json({ ok: false, error: e.message || "SERVER_ERROR" }, 500);
   }
