@@ -328,7 +328,7 @@
     }catch(e){ return iso || "-" }
   }
 
-  ffunction statusBadge(status){
+  function statusBadge(status){
     const s = String(status || "").toLowerCase();
   
     if (s === "confirmed" || s === "received") {
