@@ -328,21 +328,29 @@
     `;
   }
 
-  function waLink(mobile, name){
-    // mobile عندك في D1 هو مثل 966... أو 05...
-    // نخليه رقم دولي للـ wa.me
-    if(!mobile) return "-";
+  function waLink(mobile, name, token){
+    if(!mobile || !token) return "-";
+  
     let m = String(mobile).trim();
-    // لو يبدأ 05 → نحوله 9665
+  
+    // توحيد رقم الجوال
     if(m.startsWith("05")) m = "966" + m.slice(1);
-    // لو يبدأ 5 → نحوله 9665
     if(m.startsWith("5") && m.length === 9) m = "966" + m;
-    // حذف أي رموز
     m = m.replace(/[^\d]/g, "");
-
-    const msg = encodeURIComponent(`مرحباً ${name || ""}، تم استلام طلبك ونحتاج تأكيد بسيط ✅`);
+  
+    const confirmUrl = `https://talab.hindtech.sa/confirm?token=${token}`;
+  
+    const msg = encodeURIComponent(
+  `مرحباً ${name || ""} 
+  تم تسجيل طلبك بنجاح.
+  
+  لتأكيد الاستلام اضغط على الرابط:
+  ${confirmUrl}`
+    );
+  
     return `https://wa.me/${m}?text=${msg}`;
   }
+  
 
   async function loadUser() {
     const res = await fetch("/api/me", { credentials: "include" });
