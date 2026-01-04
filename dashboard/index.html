@@ -419,23 +419,26 @@
   
     return `https://wa.me/${m}?text=${msg}`;
   }
+  
+
   async function loadUser() {
-    try {
-      const res = await fetch("/api/me");
-      if (!res.ok) throw new Error("unauthorized");
-  
-      const u = await res.json();
-  
-      const pretty =
-        (u.name || "")
-          .replace(/[._-]+/g, " ")
-          .trim();
-  
-      return { name: pretty || "مستخدم", email: u.email || "" };
-    } catch (e) {
-      return { name: "مستخدم", email: "" };
-    }
+  try {
+    const res = await fetch("/api/me");
+    if (!res.ok) throw new Error("unauthorized");
+
+    const u = await res.json();
+
+    const name =
+      (u.name && u.name !== "مستخدم")
+        ? u.name
+        : (u.email ? u.email.split("@")[0] : "مستخدم");
+
+    return { name, email: u.email || "" };
+  } catch {
+    return { name: "مستخدم", email: "" };
   }
+}
+
   
   async function loadDashboard(){
     const user = await loadUser();
