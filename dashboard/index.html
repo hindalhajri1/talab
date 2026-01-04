@@ -366,8 +366,27 @@
   
     return `https://wa.me/${m}?text=${msg}`;
   }
+  async function loadUser() {
+    try {
+      const res = await fetch("/api/me");
+      if (!res.ok) throw new Error("unauthorized");
+  
+      const u = await res.json();
+  
+      const pretty =
+        (u.name || "")
+          .replace(/[._-]+/g, " ")
+          .trim();
+  
+      return { name: pretty || "مستخدم", email: u.email || "" };
+    } catch (e) {
+      return { name: "مستخدم", email: "" };
+    }
+  }
   
   async function loadDashboard(){
+    const user = await loadUser();
+  
     const res = await fetch("/api/stats");
     if(!res.ok){
       document.body.innerHTML = "تعذر تحميل البيانات";
@@ -377,7 +396,8 @@
     const data = await res.json();
   
     // Header
-    document.getElementById("hello").textContent = "مرحباً بك 👋";
+    document.getElementById("hello").textContent =
+      `مرحباً بك، ${user.name} 👋`;
     document.getElementById("updated").textContent =
       `آخر تحديث: ${new Date().toLocaleString("ar-SA")}`;
     // Cards
