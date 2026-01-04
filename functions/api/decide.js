@@ -52,7 +52,10 @@ export async function onRequestPost({ request, env }) {
   function json(obj, status = 200) {
     return new Response(JSON.stringify(obj), {
       status,
-      headers: { "content-type": "application/json; charset=utf-8" },
-    });
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
+      }
+          });
   }
   

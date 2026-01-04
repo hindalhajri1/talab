@@ -123,8 +123,22 @@
       return;
     }
 
+
     showState("حدث خطأ: الرابط غير صالح أو غير موجود.", true);
   };
+
+  let submitting = false;
+//new
+  mYes.onclick = async () => {
+    if (submitting) return;
+    submitting = true;
+  
+    disableAll();
+    mYes.disabled = true;
+    mNo.disabled = true;
+  
+  };
+  
 
   function showState(msg, isErr){
     stateBox.style.display = "block";

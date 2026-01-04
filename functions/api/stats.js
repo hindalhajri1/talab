@@ -30,12 +30,15 @@ export async function onRequestGet({ env }) {
       ORDER BY total DESC
     `).all();
 
-    const latest = await db.prepare(`
-      SELECT id, name, mobile, city, status, token, created_at
+    const totalRow = await env.DB.prepare(`
+      SELECT
+        COUNT(*) AS total,
+        SUM(CASE WHEN status='Confirmed' THEN 1 ELSE 0 END) AS confirmed,
+        SUM(CASE WHEN status='Cancelled' THEN 1 ELSE 0 END) AS cancelled,
+        SUM(CASE WHEN status='Registered' THEN 1 ELSE 0 END) AS pending
       FROM requests
-      ORDER BY datetime(created_at) DESC
-      LIMIT 20
-    `).all();
+    `).first();
+    
 
     return new Response(JSON.stringify({
       cards: {
