@@ -1,146 +1,167 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>طلب الأذانية</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نموذج الطلب</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;800;900&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#f3f4f6; --card:#fff; --text:#111827; --sub:#6b7280; --muted:#e5e7eb;
-      --primary:#111827; --shadow:0 16px 30px rgba(0,0,0,.10); --radius:18px;
-    }
+    :root{--bg:#f3f4f6;--card:#fff;--text:#111827;--sub:#6b7280;--border:#e5e7eb;--r:18px;}
     *{box-sizing:border-box}
-    body{margin:0;font-family:"Tajawal",system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);
-      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
-    .card{width:100%;max-width:520px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-      border:1px solid rgba(17,24,39,.08);overflow:hidden;}
-    .top{padding:18px 18px 10px;border-bottom:1px solid var(--muted);text-align:center;background:linear-gradient(#fff,#fafafa);}
-    .title{margin:0;font-size:18px;font-weight:900;color:var(--primary);}
-    .subtitle{margin:8px 0 0;font-size:13px;color:var(--sub);line-height:1.7;}
-    .body{padding:16px 18px 18px;}
-    label{display:block;margin:14px 0 8px;font-size:13px;font-weight:900;}
-    input,select{width:100%;padding:14px;border-radius:12px;border:1px solid #d1d5db;outline:none;font-size:16px;font-family:inherit;background:#fff;}
-    input:focus,select:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.10);}
-    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    @media (max-width:420px){.row2{grid-template-columns:1fr;}}
-    .actions{margin-top:16px;display:flex;gap:10px;}
-    button{width:100%;border:none;border-radius:12px;padding:14px 12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;}
-    .btnPrimary{background:var(--primary);color:#fff;}
-    .btnGhost{background:#f3f4f6;color:#111827;border:1px solid #e5e7eb;}
-    .msg{display:none;margin-top:14px;padding:12px;border-radius:12px;font-weight:800;text-align:center;}
-    .ok{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;}
-    .err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;}
-    .small{margin-top:8px;font-size:12px;color:var(--sub);text-align:center;line-height:1.6;}
+    body{margin:0;font-family:Tajawal,system-ui;background:var(--bg);color:var(--text);padding:18px}
+    .wrap{max-width:680px;margin:0 auto}
+    .card{background:var(--card);border:1px solid rgba(17,24,39,.08);border-radius:var(--r);padding:16px;box-shadow:0 16px 30px rgba(0,0,0,.08)}
+    h1{margin:0 0 6px;font-size:18px;font-weight:900}
+    p{margin:0 0 14px;color:var(--sub);font-size:13px;line-height:1.7}
+    .row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    label{font-weight:900;font-size:13px}
+    input,select,textarea{
+      border:1px solid var(--border);border-radius:14px;padding:12px 12px;font-family:inherit;font-size:14px;outline:none;
+      background:#fff
+    }
+    input:focus,select:focus,textarea:focus{border-color:#111827}
+    .btn{
+      width:100%;border:0;border-radius:14px;padding:12px 14px;font-weight:900;cursor:pointer;font-family:inherit;
+      background:#111827;color:#fff
+    }
+    .msg{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--border);background:#fafafa;display:none}
+    .ok{border-color:#bbf7d0;background:#ecfdf5}
+    .err{border-color:#fecaca;background:#fef2f2}
+    .muted{color:var(--sub)}
+    a{color:#111827;font-weight:900}
+    code{direction:ltr;unicode-bidi:bidi-override}
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <div class="top">
-      <h1 class="title">طلب الازانيا</h1>
-      <p class="subtitle">أدخل بياناتك وسيتم تسجيل الطلب.</p>
-    </div>
+  <div class="wrap">
+    <div class="card">
+      <h1 id="formTitle">نموذج الطلب</h1>
+      <p id="formDesc">يرجى تعبئة البيانات التالية.</p>
 
-    <div class="body">
-      <label for="name">الاسم</label>
-      <input id="name" placeholder="ادخل اسمك" />
+      <form id="dynamicForm"></form>
 
-      <label for="mobile">رقم الجوال</label>
-      <input id="mobile" inputmode="numeric" placeholder="05xxxxxxxx" />
+      <button class="btn" id="submitBtn" type="button">إرسال</button>
 
-      <div class="row2">
-        <div>
-          <label for="city">المدينة</label>
-          <select id="city">
-            <option value="">اختر المدينة</option>
-            <option value="الدمام">الدمام</option>
-            <option value="الخبر">الخبر</option>
-            <option value="الظهران">الظهران</option>
-          </select>
-        </div>
-        <div>
-          <label for="count">عدد الازانيا</label>
-          <input id="count" type="number" min="1" value="1" inputmode="numeric" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btnGhost" type="button" onclick="resetForm()">مسح</button>
-        <button id="sendBtn" class="btnPrimary" type="button" onclick="submitForm()">إرسال</button>
-      </div>
-
-      <div id="okMsg" class="msg ok">✅ تم تسجيل طلبك بنجاح</div>
-      <div id="errMsg" class="msg err"></div>
-
-      <div class="small">عند تجهيز الاستلام سيتم إرسال رابط “تأكيد الاستلام” عبر الواتساب.</div>
+      <div class="msg" id="msgBox"></div>
     </div>
   </div>
 
 <script>
-  // ✅ حطي رابط /exec بعد آخر Deploy (New Version)
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjizj07iHIioljYfm5Nq4Qssvck6CRchEqWm-g-cZz4Y0YR6ip6LtmuLCNFLlaYI6y/exec";
+  const formEl = document.getElementById("dynamicForm");
+  const msgBox = document.getElementById("msgBox");
+  const submitBtn = document.getElementById("submitBtn");
 
-  function show(type, text=""){
-    document.getElementById("okMsg").style.display  = (type==="ok")  ? "block" : "none";
-    const err = document.getElementById("errMsg");
-    err.style.display = (type==="err") ? "block" : "none";
-    if(type==="err") err.textContent = text;
+  let currentForm = null;
+  let currentFields = [];
+
+  function showMsg(type, html){
+    msgBox.className = "msg " + (type === "ok" ? "ok" : "err");
+    msgBox.style.display = "block";
+    msgBox.innerHTML = html;
   }
 
-  function resetForm(){
-    document.getElementById("name").value = "";
-    document.getElementById("mobile").value = "";
-    document.getElementById("city").value = "";
-    document.getElementById("count").value = "1";
-    show("none");
+  function esc(s){
+    return String(s||"").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
   }
 
-  // JSONP callback (لا تغيّرين الاسم)
-  window.handleSubmit = function(res){
-    const btn = document.getElementById("sendBtn");
-    btn.disabled = false;
-    btn.textContent = "إرسال";
+  async function loadForm(){
+    msgBox.style.display = "none";
+    formEl.innerHTML = `<div class="muted">جارٍ تحميل الحقول...</div>`;
 
-    if(!res || !res.ok){
-      show("err", (res && res.error) ? res.error : "تعذر تسجيل الطلب");
+    // حالياً نستخدم الفورم الافتراضي (id=1) من /api/form
+    const res = await fetch("/api/form");
+    const data = await res.json();
+
+    if(!res.ok || !data.ok){
+      formEl.innerHTML = "";
+      showMsg("err", `تعذر تحميل النموذج. <br><span class="muted">${esc(data?.error || "Unknown")}</span>`);
+      submitBtn.disabled = true;
       return;
     }
 
-    show("ok");
-    // لو تبين تطلعين رابط التأكيد هنا (اختياري):
-    // console.log("confirmUrl:", res.confirmUrl);
-  };
+    currentForm = data.form;
+    currentFields = data.fields || [];
 
-  async function submitForm() {
-    const payload = {
-      name: document.querySelector("#name").value.trim(),
-      mobile: document.querySelector("#mobile").value.trim(),
-      city: document.querySelector("#city").value,
-      count: Number(document.querySelector("#count").value || 1),
-    };
-  
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || "Failed");
-  
-    // نجاح
-    // data = { ok:true, token:"..." }
-    alert("تم تسجيل بياناتك بنجاح ✅");
+    document.getElementById("formTitle").textContent = currentForm?.name || "نموذج الطلب";
+
+    renderFields(currentFields);
   }
-  
 
+  function renderFields(fields){
+    formEl.innerHTML = fields.map(f => {
+      const key = f.options?.key || (f.options_json ? JSON.parse(f.options_json).key : "");
+      const required = Number(f.required) === 1 ? "required" : "";
+      const label = f.label || key || "حقل";
 
+      // أنواع مدعومة مبدئياً: text / tel / number
+      let inputAttrs = "";
+      let type = (f.field_type || "text").toLowerCase();
 
+      if(type === "number"){
+        inputAttrs = `min="1" inputmode="numeric"`;
+      }
+      if(type === "tel"){
+        inputAttrs = `inputmode="tel"`;
+      }
+
+      return `
+        <div class="row">
+          <label for="${esc(key)}">${esc(label)} ${required ? '<span class="muted">(مطلوب)</span>' : ''}</label>
+          <input id="${esc(key)}" name="${esc(key)}" type="${esc(type)}" ${required} ${inputAttrs} />
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function submitForm(){
+    msgBox.style.display = "none";
+    submitBtn.disabled = true;
+    submitBtn.textContent = "جارٍ الإرسال...";
+
+    try{
+      const payload = { form_id: currentForm?.id || 1 };
+
+      // جمع قيم الحقول بناء على key
+      currentFields.forEach(f => {
+        const key = f.options?.key || "";
+        if(!key) return;
+        const el = document.querySelector(`[name="${CSS.escape(key)}"]`);
+        payload[key] = el ? el.value : "";
+      });
+
+      const res = await fetch("/api/register", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if(!res.ok || !data.ok){
+        showMsg("err", `تعذر الإرسال: <b>${esc(data?.error || "خطأ")}</b>`);
+        return;
+      }
+
+      showMsg("ok", `
+        ✅ ${esc(data.message || "تم التسجيل")}<br>
+        رابط التأكيد: <a href="${esc(data.confirmUrl)}" target="_blank">فتح رابط التأكيد</a><br>
+        <span class="muted">Token: <code>${esc(data.token)}</code></span>
+      `);
+
+      formEl.reset?.();
+
+    }catch(e){
+      showMsg("err", `خطأ: ${esc(e.message || e)}`);
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = "إرسال";
+    }
+  }
+
+  submitBtn.addEventListener("click", submitForm);
+  loadForm();
 </script>
 </body>
 </html>
