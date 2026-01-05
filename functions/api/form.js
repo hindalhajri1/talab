@@ -1,63 +1,48 @@
-export async function onRequestGet({ request, env }) {
-  const url = new URL(request.url);
-
-  // نجيب الفورم إما بالـ slug أو بالـ id (افتراضي 1)
-  const slug = (url.searchParams.get("slug") || "").trim();
-  const formIdParam = (url.searchParams.get("form_id") || "").trim();
-
-  let formRow = null;
-
-  if (slug) {
-    formRow = await env.DB
-      .prepare(`SELECT id, name, slug, is_active FROM forms WHERE slug = ? LIMIT 1`)
-      .bind(slug)
-      .first();
-  } else {
-    const formId = Number(formIdParam || 1);
-    formRow = await env.DB
-      .prepare(`SELECT id, name, slug, is_active FROM forms WHERE id = ? LIMIT 1`)
-      .bind(formId)
-      .first();
-  }
-
-  if (!formRow) {
-    return json({ ok: false, error: "FORM_NOT_FOUND" }, 404);
-  }
-
-  if (Number(formRow.is_active) !== 1) {
-    return json({ ok: false, error: "FORM_INACTIVE" }, 403);
-  }
-
-  const fields = await env.DB
-    .prepare(`
-      SELECT id, form_id, label, field_type, required, options_json, sort_order, is_active
-      FROM form_fields
-      WHERE form_id = ? AND is_active = 1
-      ORDER BY sort_order ASC
-    `)
-    .bind(formRow.id)
-    .all();
-
-  // نحول options_json إلى object (إن وجد)
-  const cleanFields = (fields.results || []).map(f => {
-    let options = null;
-    try { options = f.options_json ? JSON.parse(f.options_json) : null; } catch {}
-    return { ...f, options };
-  });
-
-  return json({
-    ok: true,
-    form: formRow,
-    fields: cleanFields
-  });
-}
-
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
     },
   });
+}
+
+function decodeJwtEmail(request) {
+  const jwt = request.headers.get("cf-access-jwt-assertion");
+  if (!jwt) return { ok: false };
+
+  try {
+    const parts = jwt.split(".");
+    if (parts.length !== 3) return { ok: false };
+
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
+    const claims = JSON.parse(atob(padded));
+
+    const email = claims.email || claims.upn || claims.sub || null;
+    const name =
+      claims.name || claims.nickname || (email ? email.split("@")[0] : "User");
+
+    return { ok: true, email, name };
+  } catch {
+    return { ok: false };
+  }
+}
+
+export async function onRequestGet({ request, env }) {
+  const auth = decodeJwtEmail(request);
+  if (!auth.ok || !auth.email) return json({ ok: false, error: "Unauthorized" }, 401);
+
+  const rows = await env.DB
+    .prepare(
+      `SELECT id, name, slug, is_active, created_at
+       FROM forms
+       WHERE owner_email = ?
+       ORDER BY id DESC`
+    )
+    .bind(auth.email)
+    .all();
+
+  return json({ ok: true, forms: rows.results || [] });
 }

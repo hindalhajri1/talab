@@ -261,6 +261,10 @@
       <div class="actions">
         <button class="btn light" id="btnRefresh">تحديث البيانات</button>
         <button class="btn white" id="btnNewForm" type="button">+ إنشاء فورم</button>
+        <select id="formSelect" class="btn white" style="padding:10px 12px">
+  <option value="">جاري تحميل الفورمات…</option>
+</select>
+
         <a class="btn white" href="/" style="text-decoration:none;">فتح الفورم</a>
       </div>
     </div>
@@ -468,7 +472,7 @@
   async function loadDashboard(){
     const user = await loadUser();
   
-    const res = await fetch("/api/stats");
+const res = await fetch(`/api/stats?form_id=${CURRENT_FORM_ID}`);
     if(!res.ok){
       document.body.innerHTML = "تعذر تحميل البيانات";
       return;
@@ -611,7 +615,46 @@ async function createForm(){
 
 btnCreateForm?.addEventListener("click", createForm);
 
+let CURRENT_FORM_ID = null;
+
+async function loadMyForms(){
+  const res = await fetch("/api/forms");
+  if(!res.ok) throw new Error("forms load failed");
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || "forms error");
+  return data.forms || [];
+}
+
+function setFormSelect(forms){
+  const sel = document.getElementById("formSelect");
+  sel.innerHTML = forms.map(f =>
+    `<option value="${f.id}">${f.name} (${f.slug})</option>`
+  ).join("");
+
+  // last chosen
+  const saved = localStorage.getItem("current_form_id");
+  const first = forms[0]?.id;
+  CURRENT_FORM_ID = Number(saved || first || 0);
+
+  sel.value = String(CURRENT_FORM_ID || "");
+
+  sel.addEventListener("change", () => {
+    CURRENT_FORM_ID = Number(sel.value || 0);
+    localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+    loadDashboard(); // يحدث الإحصائيات
+  });
+}
+
+
+(async () => {
+  const forms = await loadMyForms();
+  if(!forms.length){
+    alert("لا يوجد فورمات لديك. أنشئي فورم جديد.");
+    return;
+  }
+  setFormSelect(forms);
   loadDashboard();
+})();
 
   
 </script>
