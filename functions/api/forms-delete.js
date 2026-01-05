@@ -1,9 +1,7 @@
 export async function onRequestPost({ request, env }) {
-  // 1) لازم JWT من Cloudflare Access
   const jwt = request.headers.get("cf-access-jwt-assertion");
   if (!jwt) return json({ ok: false, error: "UNAUTHORIZED", hint: "Missing Access JWT" }, 401);
 
-  // 2) استخراج الإيميل من JWT
   let email = null;
   try {
     const parts = jwt.split(".");
@@ -15,12 +13,11 @@ export async function onRequestPost({ request, env }) {
 
     email = claims.email || claims.upn || claims.sub || null;
   } catch (e) {
-    return json({ ok: false, error: "BAD_TOKEN" }, 400);
+    return json({ ok: false, error: "BAD_TOKEN", message: e.message || String(e) }, 400);
   }
 
   if (!email) return json({ ok: false, error: "UNAUTHORIZED", hint: "Missing email in JWT" }, 401);
 
-  // 3) قراءة Body
   let body = {};
   try {
     body = await request.json();
@@ -33,44 +30,43 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: "ID_REQUIRED" }, 400);
   }
 
-  // 4) تأكد إن الفورم ملك نفس المالك
-  const check = await env.DB
+  // تأكد الفورم موجود ومملوك لنفس الإيميل
+  const form = await env.DB
     .prepare(`SELECT id, owner_email FROM forms WHERE id = ?`)
     .bind(id)
     .first();
 
-  if (!check) return json({ ok: false, error: "NOT_FOUND" }, 404);
-  if (String(check.owner_email || "").toLowerCase() !== String(email).toLowerCase()) {
+  if (!form) return json({ ok: false, error: "NOT_FOUND" }, 404);
+  if (String(form.owner_email || "").toLowerCase() !== String(email).toLowerCase()) {
     return json({ ok: false, error: "FORBIDDEN" }, 403);
   }
 
-  // 5) حذف آمن داخل Transaction
-  // ملاحظة: D1 يدعم batch، و BEGIN/COMMIT تمشي غالباً.
-  // إذا بيئتك ما تدعم BEGIN/COMMIT، احذفيهم وسيظل الحذف يعمل.
   try {
-    const statements = [
-      env.DB.prepare("BEGIN"),
+    // 1) حذف الحقول التابعة
+    await env.DB.prepare(`DELETE FROM form_fields WHERE form_id = ?`).bind(id).run();
 
-      // ✅ احذفي الحقول التابعة للفورم
-      env.DB.prepare(`DELETE FROM form_fields WHERE form_id = ?`).bind(id),
+    // 2) حذف الطلبات التابعة (إذا تبين تبقيها، احذفي هذا السطر)
+    await env.DB.prepare(`DELETE FROM requests WHERE form_id = ?`).bind(id).run();
 
-      // ✅ (اختياري) احذفي الطلبات التابعة للفورم
-      // إذا تبين تخلي الطلبات محفوظة، علّقي السطر هذا
-      env.DB.prepare(`DELETE FROM requests WHERE form_id = ?`).bind(id),
+    // 3) حذف الفورم نفسه
+    const del = await env.DB
+      .prepare(`DELETE FROM forms WHERE id = ? AND owner_email = ?`)
+      .bind(id, email)
+      .run();
 
-      // ✅ احذفي الفورم نفسه
-      env.DB.prepare(`DELETE FROM forms WHERE id = ? AND owner_email = ?`).bind(id, email),
+    // D1 يرجع meta غالباً
+    const changes = del?.meta?.changes ?? null;
 
-      env.DB.prepare("COMMIT"),
-    ];
+    if (changes === 0) {
+      return json({ ok: false, error: "NOT_DELETED", hint: "No rows deleted (unexpected)" }, 409);
+    }
 
-    await env.DB.batch(statements);
-
-    return json({ ok: true, deleted_id: id });
+    return json({ ok: true, deleted_id: id, changes });
   } catch (e) {
-    // rollback احتياطي
-    try { await env.DB.prepare("ROLLBACK").run(); } catch {}
-    return json({ ok: false, error: "DB_ERROR", message: e.message || String(e) }, 500);
+    return json(
+      { ok: false, error: "DB_ERROR", message: e.message || String(e) },
+      500
+    );
   }
 }
 
