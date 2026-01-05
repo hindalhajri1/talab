@@ -37,7 +37,6 @@
       padding:0 16px;
     }
 
-    /* Top header only (user + time) */
     .topbar{
       background: linear-gradient(135deg, var(--brand), var(--brand2));
       color:#fff;
@@ -82,7 +81,6 @@
     .btn.light{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.22)}
     .btn:active{transform:translateY(1px)}
 
-    /* Sections */
     .section-title{
       margin:18px 0 10px;
       display:flex;
@@ -102,7 +100,6 @@
       font-weight:700;
     }
 
-    /* Cards grid (My Forms) */
     .grid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
@@ -135,7 +132,6 @@
     }
     .form-actions button:hover{filter:brightness(.98)}
 
-    /* Create card (always first) */
     .create-card{
       border-style:dashed;
       border-color:#d6ccff;
@@ -153,7 +149,6 @@
     }
     .create-hint{color:var(--muted);font-size:13px;font-weight:700;line-height:1.6}
 
-    /* Stats area (hidden until select form) */
     .card{
       background:var(--card);
       border:1px solid var(--border);
@@ -177,7 +172,6 @@
       direction:ltr;
     }
 
-    /* Stat chips */
     .chips{
       margin-top:12px;
       display:grid;
@@ -200,7 +194,6 @@
     .dot.bad{background:var(--bad)}
     .dot.neutral{background:#94a3b8}
 
-    /* City cards */
     .city-card{
       grid-column: span 3;
       background:#fff;
@@ -224,7 +217,6 @@
       direction:ltr;
     }
 
-    /* Table */
     table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden}
     thead th{
       text-align:right;font-size:13px;color:var(--muted);font-weight:900;
@@ -250,7 +242,6 @@
     .s-canceled .sdot{background:var(--bad)}
     .sdot{width:8px;height:8px;border-radius:50%}
 
-    /* WhatsApp button */
     .wa{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:12px;
@@ -260,13 +251,12 @@
     .wa:hover{filter:brightness(.98)}
     .wa svg{width:16px;height:16px}
 
-    /* Empty state */
     .empty{
       padding:18px;border-radius:18px;border:1px dashed #d1d5db;
       background:#fff;color:var(--muted);font-weight:800;
+      grid-column: span 12;
     }
 
-    /* Modal */
     #modalBack{
       position:fixed;inset:0;background:rgba(0,0,0,.35);
       display:none;place-items:center;padding:18px;z-index:9999;
@@ -315,7 +305,6 @@
 <body>
   <div class="container">
 
-    <!-- TOP (user + time only) -->
     <div class="topbar">
       <div>
         <h1 id="hello">مرحباً بك 👋</h1>
@@ -333,7 +322,6 @@
       </div>
     </div>
 
-    <!-- MY FORMS -->
     <div class="section-title">
       <h2>نماذجي</h2>
       <div class="sub">اختاري نموذج لعرض الإحصائيات أو افتحيه</div>
@@ -343,7 +331,6 @@
       <div class="empty">جاري تحميل النماذج…</div>
     </div>
 
-    <!-- STATS (only show after selecting a form) -->
     <div class="stats-wrap" id="statsWrap">
       <div class="section-title">
         <h2>إحصائيات النموذج</h2>
@@ -422,7 +409,6 @@
 
   </div>
 
-  <!-- MODAL -->
   <div id="modalBack">
     <div class="modal">
       <h3>إنشاء نموذج جديد</h3>
@@ -501,36 +487,75 @@ ${confirmUrl}`
     return FORMS_CACHE.find(f => Number(f.id) === Number(CURRENT_FORM_ID)) || null;
   }
 
-  // ---------- auth/user ----------
-  async function loadUser(){
-    try{
-      const res = await fetch("/api/me", { credentials:"include" });
-      if(!res.ok) throw new Error("unauthorized");
-      const u = await res.json();
-
-      const name =
-        (u.name && u.name !== "مستخدم")
-          ? u.name
-          : (u.email ? u.email.split("@")[0] : "مستخدم");
-
-      return { name, email: u.email || "" };
-    }catch{
-      return { name:"مستخدم", email:"" };
+  // ---------- safe json ----------
+  async function safeJson(res){
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    const text = await res.text();
+    if (!ct.includes("application/json")) {
+      throw new Error("NOT_JSON::" + text.slice(0, 160));
     }
+    try { return JSON.parse(text); } catch { throw new Error("BAD_JSON"); }
   }
 
-  // ---------- forms ----------
-  async function loadMyForms(){
-    const res = await fetch("/api/forms", { credentials:"include" });
-    if(!res.ok) throw new Error("forms load failed");
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.error || "forms error");
+  // ---------- api ----------
+  async function apiMe(){
+    const res = await fetch("/api/me", { credentials:"include", cache:"no-store" });
+    if(!res.ok) return { name:"مستخدم", email:"" };
+    const u = await res.json();
+    const name =
+      (u.name && u.name !== "مستخدم")
+        ? u.name
+        : (u.email ? u.email.split("@")[0] : "مستخدم");
+    return { name, email: u.email || "" };
+  }
+
+  async function apiGetForms(){
+    const res = await fetch("/api/forms", {
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Accept":"application/json" }
+    });
+    if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
+    const data = await safeJson(res);
+    if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
     return data.forms || [];
   }
 
+  async function apiGetStats(formId){
+    const res = await fetch(`/api/stats?form_id=${encodeURIComponent(formId)}`, {
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Accept":"application/json" }
+    });
+    if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
+    const data = await safeJson(res);
+    if(!res.ok) throw new Error(data.error || "STATS_FAILED");
+    return data;
+  }
+
+  async function apiCreateForm(payload){
+    const res = await fetch("/api/forms-create", {
+      method:"POST",
+      credentials:"include",
+      cache:"no-store",
+      headers:{
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
+    const data = await safeJson(res);
+    if(!res.ok || !data.ok) throw new Error(data.error || "CREATE_FAILED");
+    return data.form;
+  }
+
+  // ---------- ui ----------
   function openModal(){
     document.getElementById("modalBack").style.display = "grid";
-    document.getElementById("newFormMsg").style.display = "none";
+    const msg = document.getElementById("newFormMsg");
+    msg.style.display = "none";
+    msg.textContent = "";
     document.getElementById("newFormName").value = "";
     document.getElementById("newFormSlug").value = "";
   }
@@ -538,24 +563,31 @@ ${confirmUrl}`
     document.getElementById("modalBack").style.display = "none";
   }
 
+  function pickInitialFormId(){
+    const saved = localStorage.getItem("current_form_id");
+    const first = FORMS_CACHE[0]?.id;
+    CURRENT_FORM_ID = Number(saved || first || 0) || null;
+
+    if(CURRENT_FORM_ID && !FORMS_CACHE.some(f => Number(f.id) === Number(CURRENT_FORM_ID))){
+      CURRENT_FORM_ID = Number(first || 0) || null;
+      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID || ""));
+    }
+  }
+
   function renderFormsGrid(){
     const grid = document.getElementById("formsGrid");
 
-    // create card always first
     const createCard = `
       <div class="form-card create-card" id="createCard">
         <div class="create-icon">+</div>
         <div class="form-title">إنشاء نموذج</div>
-        <div class="create-hint">ابدئي نموذج جديد، وبعدها تقدري تفتحيه وتتابعي إحصائياته من هنا.</div>
+        <div class="create-hint">ابدئي نموذج جديد، ثم افتحيه وتابعي إحصائياته من هنا.</div>
       </div>
     `;
 
     if(!FORMS_CACHE.length){
       grid.innerHTML = createCard + `
-        <div class="form-card" style="grid-column:span 8">
-          <div class="form-title">لا يوجد نماذج بعد</div>
-          <div class="create-hint">اضغطي “إنشاء نموذج” للبدء.</div>
-        </div>
+        <div class="empty">لا يوجد نماذج بعد. اضغطي “إنشاء نموذج” للبدء.</div>
       `;
       document.getElementById("currentFormName").textContent = "—";
       document.getElementById("statsWrap").classList.remove("show");
@@ -565,7 +597,6 @@ ${confirmUrl}`
 
     const cards = FORMS_CACHE.map(f => {
       const active = Number(f.id) === Number(CURRENT_FORM_ID);
-      const formLink = `/?form_id=${encodeURIComponent(f.id)}`;
       return `
         <div class="form-card ${active ? "active" : ""}">
           <div class="form-title">${f.name}</div>
@@ -582,7 +613,6 @@ ${confirmUrl}`
 
     grid.innerHTML = createCard + cards;
 
-    // events
     document.getElementById("createCard").addEventListener("click", openModal);
 
     grid.querySelectorAll("[data-open]").forEach(btn=>{
@@ -598,7 +628,7 @@ ${confirmUrl}`
         CURRENT_FORM_ID = id;
         localStorage.setItem("current_form_id", String(id));
         renderFormsGrid();
-        await loadDashboardStats();
+        await loadStats();
       });
     });
 
@@ -612,17 +642,9 @@ ${confirmUrl}`
         setTimeout(()=> btn.textContent = old, 900);
       });
     });
-  }
 
-  function pickInitialFormId(){
-    const saved = localStorage.getItem("current_form_id");
-    const first = FORMS_CACHE[0]?.id;
-    CURRENT_FORM_ID = Number(saved || first || 0) || null;
-    // لو saved يشير لشي محذوف
-    if(CURRENT_FORM_ID && !FORMS_CACHE.some(f => Number(f.id) === Number(CURRENT_FORM_ID))){
-      CURRENT_FORM_ID = Number(first || 0) || null;
-      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID || ""));
-    }
+    const f = getCurrentForm();
+    document.getElementById("currentFormName").textContent = f ? f.name : "—";
   }
 
   function openCurrentForm(){
@@ -631,44 +653,26 @@ ${confirmUrl}`
     window.open(`/?form_id=${encodeURIComponent(f.id)}`, "_blank");
   }
 
-  // ---------- stats ----------
-  async function loadDashboardStats(){
-    const statsWrap = document.getElementById("statsWrap");
+  async function loadStats(){
+    const wrap = document.getElementById("statsWrap");
     const f = getCurrentForm();
-
-    if(!f || !CURRENT_FORM_ID){
-      statsWrap.classList.remove("show");
-      document.getElementById("currentFormName").textContent = "—";
+    if(!f){
+      wrap.classList.remove("show");
       return;
     }
 
-    document.getElementById("currentFormName").textContent = f.name;
+    const data = await apiGetStats(f.id);
 
-    const user = await loadUser();
-    document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
-    document.getElementById("updated").textContent = `Last update: ${new Date().toLocaleString("en-US")}`;
-
-    const res = await fetch(`/api/stats?form_id=${encodeURIComponent(CURRENT_FORM_ID)}`, { credentials:"include" });
-    if(!res.ok){
-      statsWrap.classList.remove("show");
-      alert("تعذر تحميل الإحصائيات. تأكدي من صلاحيات Access أو من API.");
-      return;
-    }
-    const data = await res.json();
-
-    // show stats now
-    statsWrap.classList.add("show");
+    wrap.classList.add("show");
     document.getElementById("statsFormTitle").textContent = f.name;
     document.getElementById("statsFormSlug").textContent = f.slug;
     document.getElementById("statsHint").textContent = `Form ID: ${f.id}`;
 
-    // cards
     document.getElementById("total").textContent = num(data?.cards?.total ?? 0);
     document.getElementById("confirmed").textContent = num(data?.cards?.confirmed ?? 0);
     document.getElementById("pending").textContent = num(data?.cards?.pending ?? 0);
     document.getElementById("canceled").textContent = num(data?.cards?.canceled ?? 0);
 
-    // cities
     const byCity = data.byCity || [];
     document.getElementById("cityHint").textContent = `Cities: ${num(byCity.length)}`;
 
@@ -689,7 +693,6 @@ ${confirmUrl}`
       `;
     }).join("");
 
-    // latest table
     const latestBody = document.getElementById("latestBody");
     const latest = data.latest || [];
     latestBody.innerHTML = latest.map(r => `
@@ -713,8 +716,7 @@ ${confirmUrl}`
     `).join("");
   }
 
-  // ---------- create form ----------
-  async function createForm(){
+  async function handleCreateForm(){
     const msg = document.getElementById("newFormMsg");
     msg.style.display = "block";
     msg.style.background = "#fafafa";
@@ -726,165 +728,73 @@ ${confirmUrl}`
       slug: document.getElementById("newFormSlug").value.trim()
     };
 
-    const res = await fetch("/api/forms-create", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload),
-      credentials:"include"
-    });
+    try{
+      const created = await apiCreateForm(payload);
 
-    const data = await res.json().catch(()=> ({}));
+      msg.style.background = "#ecfdf5";
+      msg.style.borderColor = "#bbf7d0";
+      msg.textContent = `✅ تم إنشاء النموذج: ${created.name}`;
 
-    if(!res.ok || !data.ok){
-      let m = data.error || "فشل إنشاء النموذج";
-      if(m === "NAME_REQUIRED") m = "اكتبي اسم النموذج.";
-      if(m === "SLUG_EXISTS") m = "الـ slug مستخدم مسبقاً، غيريه.";
+      // reload forms
+      FORMS_CACHE = await apiGetForms();
+
+      // select new form
+      CURRENT_FORM_ID = Number(created.id);
+      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+
+      renderFormsGrid();
+      await loadStats();
+
+      // open immediately
+      window.open(`/?form_id=${encodeURIComponent(CURRENT_FORM_ID)}`, "_blank");
+
+      setTimeout(closeModal, 450);
+
+    }catch(e){
+      console.error("CREATE_FORM_ERROR:", e);
+      let m = String(e.message || "فشل إنشاء النموذج");
+      if(m.includes("NAME_REQUIRED")) m = "اكتبي اسم النموذج.";
+      if(m.includes("SLUG_EXISTS")) m = "الـ slug مستخدم مسبقاً، غيريه.";
       msg.style.background = "#fef2f2";
       msg.style.borderColor = "#fecaca";
       msg.textContent = m;
-      return;
     }
-
-    msg.style.background = "#ecfdf5";
-    msg.style.borderColor = "#bbf7d0";
-    msg.textContent = `✅ تم إنشاء النموذج: ${data.form.name}`;
-
-    // Reload forms, select new one, open it immediately
-    try{
-      FORMS_CACHE = await loadMyForms();
-      pickInitialFormId();
-
-      // prefer the newly created
-      if(data.form?.id){
-        CURRENT_FORM_ID = Number(data.form.id);
-        localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
-      }
-
-      renderFormsGrid();
-      await loadDashboardStats();
-
-      // افتحي الفورم مباشرة (New Tab)
-      window.open(`/?form_id=${encodeURIComponent(CURRENT_FORM_ID)}`, "_blank");
-    }catch(e){
-      console.log(e);
-    }
-
-    setTimeout(closeModal, 450);
   }
-
-  async function safeJson(res){
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-  const text = await res.text();
-  if (!ct.includes("application/json")) {
-    // هذا غالباً HTML من Cloudflare Access أو Redirect
-    throw new Error("NOT_JSON::" + text.slice(0, 120));
-  }
-  try { return JSON.parse(text); } catch { throw new Error("BAD_JSON"); }
-}
-
-async function apiGetForms(){
-  const url = `${location.origin}/api/forms`;
-  const res = await fetch(url, {
-    credentials: "include",
-    cache: "no-store",
-    headers: { "Accept": "application/json" }
-  });
-
-  if (res.redirected) {
-    // غالباً راح صفحة Access
-    throw new Error("REDIRECTED_TO_ACCESS");
-  }
-
-  const data = await safeJson(res);
-  if(!res.ok || !data.ok) throw new Error(data.error || "FORMS_FAILED");
-  return data.forms || [];
-}
-
-async function apiGetStats(formId){
-  const url = `${location.origin}/api/stats?form_id=${encodeURIComponent(formId)}`;
-  const res = await fetch(url, {
-    credentials: "include",
-    cache: "no-store",
-    headers: { "Accept": "application/json" }
-  });
-
-  if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
-
-  const data = await safeJson(res);
-  if(!res.ok) throw new Error(data.error || "STATS_FAILED");
-  return data;
-}
-
-async function apiCreateForm(payload){
-  const url = `${location.origin}/api/forms-create`;
-  const res = await fetch(url, {
-    method: "POST",
-    credentials: "include",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (res.redirected) throw new Error("REDIRECTED_TO_ACCESS");
-
-  const data = await safeJson(res);
-  if(!res.ok || !data.ok) throw new Error(data.error || "CREATE_FAILED");
-  return data.form;
-}
 
   // ---------- boot ----------
   (async function init(){
-    // wire modal
     document.getElementById("btnNewForm").addEventListener("click", openModal);
     document.getElementById("btnCloseModal").addEventListener("click", closeModal);
     document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id === "modalBack") closeModal(); });
-    document.getElementById("btnCreateForm").addEventListener("click", createForm);
-
-    // open current form button
+    document.getElementById("btnCreateForm").addEventListener("click", handleCreateForm);
     document.getElementById("btnOpenForm").addEventListener("click", openCurrentForm);
 
-    // user header
-    const user = await loadUser();
+    const user = await apiMe();
     document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
     document.getElementById("updated").textContent = `Last update: ${new Date().toLocaleString("en-US")}`;
 
-    // load forms
     try{
-      FORMS_CACHE = await loadMyForms();
+      FORMS_CACHE = await apiGetForms();
       pickInitialFormId();
       renderFormsGrid();
-
-      // لا نظهر الإحصائيات إلا إذا فيه فورم محدد
-      if(CURRENT_FORM_ID){
-        await loadDashboardStats();
-      }
+      if(CURRENT_FORM_ID) await loadStats();
     }catch(e){
-      console.log(e);
-      const grid = document.getElementById("formsGrid");
-      grid.innerHTML = `
+      console.error("FORMS_LOAD_ERROR:", e);
+      document.getElementById("formsGrid").innerHTML = `
         <div class="form-card create-card" id="createCard">
           <div class="create-icon">+</div>
           <div class="form-title">إنشاء نموذج</div>
           <div class="create-hint">ابدئي نموذج جديد.</div>
         </div>
-        <div class="form-card" style="grid-column:span 8">
-          <div class="form-title">تعذر تحميل النماذج</div>
-          <div class="create-hint">تأكدي من صلاحيات Cloudflare Access لمسار /api/forms</div>
+        <div class="empty">
+          تعذر تحميل النماذج.<br>
+          تأكدي من صلاحيات Cloudflare Access لمسار <b>/api/forms</b> وأنه يرجع JSON (مو صفحة HTML).<br>
+          افتحي /api/forms من نفس المتصفح وتحققي أنه يرجع { ok:true }.
         </div>
       `;
       document.getElementById("createCard").addEventListener("click", openModal);
-
-      document.getElementById("formsHint").textContent =
-    "تعذر تحميل النماذج. افتحي /api/forms في نفس المتصفح لتأكيد Cloudflare Access.";
-  console.error("FORMS_LOAD_ERROR:", e);
-  showToast("فشل تحميل النماذج");
     }
   })();
-
-  
 </script>
 
 </body>
