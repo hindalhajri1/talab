@@ -7,22 +7,15 @@ export async function onRequestGet({ request, env }) {
       return json({ ok: false, error: "MISSING_FORM_ID" }, 400);
     }
 
-    // 1) جلب النموذج (عام)
-    const formRow = await env.DB
+    const form = await env.DB
       .prepare(`SELECT id, name, slug, is_active, created_at FROM forms WHERE id = ? LIMIT 1`)
       .bind(formId)
       .first();
 
-    if (!formRow) {
-      return json({ ok: false, error: "FORM_NOT_FOUND" }, 404);
-    }
+    if (!form) return json({ ok: false, error: "FORM_NOT_FOUND" }, 404);
+    if (Number(form.is_active) !== 1) return json({ ok: false, error: "FORM_INACTIVE" }, 403);
 
-    if (Number(formRow.is_active) !== 1) {
-      return json({ ok: false, error: "FORM_INACTIVE" }, 403);
-    }
-
-    // 2) جلب الحقول
-    const fieldsRes = await env.DB
+    const fields = await env.DB
       .prepare(`
         SELECT id, label, field_type, required, options_json, sort_order
         FROM form_fields
@@ -32,12 +25,7 @@ export async function onRequestGet({ request, env }) {
       .bind(formId)
       .all();
 
-    return json({
-      ok: true,
-      form: formRow,
-      fields: fieldsRes.results || []
-    });
-
+    return json({ ok: true, form, fields: fields.results || [] });
   } catch (e) {
     return json({ ok: false, error: e.message || "SERVER_ERROR" }, 500);
   }
