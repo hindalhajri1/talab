@@ -20,10 +20,10 @@
       --brand2:#7a43d1;
       --ok:#16a34a;
       --warn:#f59e0b;
+      --bad:#ef4444;
       --shadow: 0 10px 24px rgba(17,24,39,.06);
-      --r:16px;
+      --r:18px;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -33,109 +33,60 @@
     }
     .container{
       max-width:1100px;
-      margin:24px auto;
+      margin:22px auto;
       padding:0 16px;
     }
 
-    /* Hero */
-    .hero{
+    /* Top header only (user + time) */
+    .topbar{
       background: linear-gradient(135deg, var(--brand), var(--brand2));
       color:#fff;
       border-radius:22px;
-      padding:22px 22px;
+      padding:18px 18px;
       box-shadow: var(--shadow);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
-      flex-wrap:wrap;
+      gap:12px;
     }
-    .hero h1{margin:0;font-size:24px;font-weight:800}
-    .hero p{margin:6px 0 0;color:rgba(255,255,255,.85);font-size:14px}
-
-    .hero .actions{
+    .topbar h1{margin:0;font-size:22px;font-weight:900}
+    .topbar .meta{margin-top:6px;color:rgba(255,255,255,.85);font-size:13px;font-weight:600}
+    .topbar .right{
       display:flex;
-      gap:10px;
       align-items:center;
+      gap:10px;
       flex-wrap:wrap;
-      justify-content:flex-start;
     }
-
+    .pill{
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.22);
+      color:#fff;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
     .btn{
       border:0;
       padding:10px 14px;
       border-radius:12px;
       cursor:pointer;
-      font-weight:800;
+      font-weight:900;
       font-size:14px;
       font-family:inherit;
     }
-    .btn.light{background:rgba(255,255,255,.18); color:#fff}
-    .btn.white{background:#fff; color:var(--brand)}
+    .btn.white{background:#fff;color:var(--brand)}
+    .btn.light{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.22)}
     .btn:active{transform:translateY(1px)}
 
-    select.btn.white{
-      appearance:none;
-      -webkit-appearance:none;
-      -moz-appearance:none;
-      padding:10px 36px 10px 12px;
-      background-image:
-        linear-gradient(45deg, transparent 50%, var(--brand) 50%),
-        linear-gradient(135deg, var(--brand) 50%, transparent 50%);
-      background-position:
-        calc(100% - 16px) 55%,
-        calc(100% - 10px) 55%;
-      background-size:6px 6px, 6px 6px;
-      background-repeat:no-repeat;
-    }
-
-    /* cards */
-    .grid{
-      margin-top:16px;
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:12px;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--r);
-      padding:14px;
-      box-shadow: 0 6px 16px rgba(17,24,39,.04);
-    }
-
-    .stat{
-      grid-column: span 3;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      min-height:78px;
-    }
-    .stat .meta{display:flex; flex-direction:column; gap:6px;}
-    .stat .label{color:var(--muted); font-size:13px; font-weight:700;}
-    .stat .value{font-size:26px; font-weight:900;}
-    .pill{
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      background:#eef2ff;
-      color:#3730a3;
-      white-space:nowrap;
-    }
-    .iconbox{
-      width:44px;height:44px;border-radius:14px;
-      display:grid;place-items:center;
-      background:#f3f4f6;
-    }
-
-    /* sections */
+    /* Sections */
     .section-title{
       margin:18px 0 10px;
       display:flex;
-      align-items:center;
+      align-items:flex-end;
       justify-content:space-between;
       gap:10px;
     }
@@ -148,72 +99,106 @@
     .section-title .sub{
       font-size:13px;
       color:var(--muted);
-      font-weight:600;
-    }
-
-    /* table */
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      overflow:hidden;
-      border-radius:14px;
-    }
-    thead th{
-      text-align:right;
-      font-size:13px;
-      color:var(--muted);
-      font-weight:900;
-      background:#fafafa;
-      border-bottom:1px solid var(--border);
-      padding:12px 10px;
-    }
-    tbody td{
-      padding:12px 10px;
-      border-bottom:1px solid var(--border);
       font-weight:700;
-      font-size:14px;
-      vertical-align:middle;
-      background:#fff;
     }
-    tbody tr:last-child td{border-bottom:0}
 
-    .status{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:12px;
+    /* Cards grid (My Forms) */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .form-card{
+      grid-column: span 4;
+      background:var(--card);
       border:1px solid var(--border);
-      background:#fff;
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 6px 16px rgba(17,24,39,.05);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:120px;
+      position:relative;
+      overflow:hidden;
     }
-    .dot{width:8px;height:8px;border-radius:50%;}
-    .s-pending .dot{background:var(--warn)}
-    .s-confirmed .dot{background:var(--ok)}
-    .s-canceled .dot{background:#ef4444}
-    .s-pending{color:#92400e}
-    .s-confirmed{color:#166534}
-    .s-canceled{color:#991b1b}
+    .form-card.active{border-color:#c4b5fd; box-shadow: 0 10px 22px rgba(91,46,166,.10);}
+    .form-title{font-weight:900;font-size:15px}
+    .form-slug{color:var(--muted);font-size:12px;direction:ltr;text-align:left}
+    .form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+    .form-actions button{
+      padding:8px 10px;border-radius:12px;border:1px solid var(--border);
+      background:#fafafa;cursor:pointer;font-weight:900;font-family:inherit;
+    }
+    .form-actions button.primary{
+      background:#fff;color:var(--brand);border-color:#e9d5ff
+    }
+    .form-actions button:hover{filter:brightness(.98)}
 
-    /* WhatsApp button */
-    .wa{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid #d1fae5;
-      background:#ecfdf5;
-      color:#065f46;
-      font-weight:900;
-      text-decoration:none;
-      font-size:13px;
-      white-space:nowrap;
+    /* Create card (always first) */
+    .create-card{
+      border-style:dashed;
+      border-color:#d6ccff;
+      background: linear-gradient(180deg, rgba(124,58,237,.06), rgba(124,58,237,.02));
+      cursor:pointer;
     }
-    .wa:hover{filter:brightness(.98)}
-    .wa svg{width:16px;height:16px}
+    .create-icon{
+      width:48px;height:48px;border-radius:16px;
+      display:grid;place-items:center;
+      background:#fff;
+      border:1px solid #efeaff;
+      color:var(--brand);
+      font-size:26px;
+      font-weight:900;
+    }
+    .create-hint{color:var(--muted);font-size:13px;font-weight:700;line-height:1.6}
+
+    /* Stats area (hidden until select form) */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 6px 16px rgba(17,24,39,.04);
+    }
+    .stats-wrap{display:none;margin-top:18px}
+    .stats-wrap.show{display:block}
+    .stats-head{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap
+    }
+    .stats-head .left{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap
+    }
+    .tag{
+      font-size:12px;
+      padding:7px 10px;border-radius:999px;
+      font-weight:900;
+      background:#eef2ff;color:#3730a3;border:1px solid #e0e7ff;
+      direction:ltr;
+    }
+
+    /* Stat chips */
+    .chips{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .chip{
+      grid-column: span 3;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      background:#fff;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+    }
+    .chip .k{color:var(--muted);font-size:13px;font-weight:800}
+    .chip .v{font-size:22px;font-weight:900}
+    .chip .dot{width:10px;height:10px;border-radius:50%}
+    .dot.ok{background:var(--ok)}
+    .dot.warn{background:var(--warn)}
+    .dot.bad{background:var(--bad)}
+    .dot.neutral{background:#94a3b8}
 
     /* City cards */
     .city-card{
@@ -224,36 +209,96 @@
       padding:14px;
       box-shadow: 0 6px 16px rgba(17,24,39,.05);
       text-align:center;
-      min-height:150px;
     }
     .city-name{font-weight:900;margin-bottom:10px}
     .circle{
       width:90px;height:90px;border-radius:50%;
       margin:0 auto 10px;
       display:grid;place-items:center;
-      font-weight:900;font-size:14px;
-      color:#111827;
-      background: conic-gradient(
-        var(--ok) calc(var(--p) * 1%),
-        #e5e7eb 0
-      );
+      font-weight:900;font-size:14px;color:#111827;
+      background: conic-gradient(var(--ok) calc(var(--p) * 1%), #e5e7eb 0);
     }
     .city-meta{
       font-size:12px;color:var(--muted);
-      display:flex;justify-content:space-between;
-      margin-top:6px;
+      display:flex;justify-content:space-between;margin-top:6px;
       direction:ltr;
     }
 
-    /* responsive */
+    /* Table */
+    table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden}
+    thead th{
+      text-align:right;font-size:13px;color:var(--muted);font-weight:900;
+      background:#fafafa;border-bottom:1px solid var(--border);
+      padding:12px 10px;
+    }
+    tbody td{
+      padding:12px 10px;border-bottom:1px solid var(--border);
+      font-weight:600;font-size:14px;vertical-align:middle;background:#fff;
+    }
+    tbody tr:last-child td{border-bottom:0}
+
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      font-weight:900;font-size:12px;border:1px solid var(--border);background:#fff;
+    }
+    .s-pending{color:#92400e}
+    .s-confirmed{color:#166534}
+    .s-canceled{color:#991b1b}
+    .s-pending .sdot{background:var(--warn)}
+    .s-confirmed .sdot{background:var(--ok)}
+    .s-canceled .sdot{background:var(--bad)}
+    .sdot{width:8px;height:8px;border-radius:50%}
+
+    /* WhatsApp button */
+    .wa{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:12px;
+      border:1px solid #d1fae5;background:#ecfdf5;color:#065f46;
+      font-weight:900;text-decoration:none;font-size:13px;white-space:nowrap;
+    }
+    .wa:hover{filter:brightness(.98)}
+    .wa svg{width:16px;height:16px}
+
+    /* Empty state */
+    .empty{
+      padding:18px;border-radius:18px;border:1px dashed #d1d5db;
+      background:#fff;color:var(--muted);font-weight:800;
+    }
+
+    /* Modal */
+    #modalBack{
+      position:fixed;inset:0;background:rgba(0,0,0,.35);
+      display:none;place-items:center;padding:18px;z-index:9999;
+    }
+    .modal{
+      width:min(520px,100%);background:#fff;border-radius:18px;
+      padding:16px;border:1px solid #e5e7eb;
+    }
+    .modal h3{margin:0 0 10px;font-weight:900}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-weight:900}
+    .field input{
+      width:100%;padding:12px;border-radius:12px;border:1px solid #e5e7eb;
+      font-family:inherit;
+      direction:rtl;
+    }
+    .help{color:#6b7280;font-size:12px;font-weight:700}
+    .msg{
+      display:none;padding:10px;border-radius:12px;border:1px solid #e5e7eb;
+      background:#fafafa;font-weight:900;
+    }
+
     @media (max-width: 980px){
-      .stat{grid-column: span 6;}
-      .city-card{grid-column: span 6;}
+      .form-card{grid-column:span 6}
+      .chip{grid-column:span 6}
+      .city-card{grid-column:span 6}
     }
     @media (max-width: 640px){
-      .hero{flex-direction:column; align-items:flex-start}
-      .stat{grid-column: span 12;}
-      .city-card{grid-column: span 12;}
+      .topbar{flex-direction:column;align-items:flex-start}
+      .form-card{grid-column:span 12}
+      .chip{grid-column:span 12}
+      .city-card{grid-column:span 12}
       thead{display:none}
       table, tbody, tr, td{display:block; width:100%}
       tbody td{border-bottom:0}
@@ -264,196 +309,139 @@
         font-weight:900;
       }
     }
-
-    /* Modal */
-    #modalBack{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      display:none;
-      place-items:center;
-      padding:18px;
-      z-index:9999;
-    }
-    #modalCard{
-      width:min(520px,100%);
-      background:#fff;
-      border-radius:18px;
-      padding:16px;
-      border:1px solid #e5e7eb;
-    }
-    .field{
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid #e5e7eb;
-      font-family:inherit;
-      font-weight:700;
-      outline:none;
-    }
-    .msg{
-      display:none;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid #e5e7eb;
-      background:#fafafa;
-      font-weight:900;
-    }
-
-    .form-card{
-  grid-column: span 4;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:14px;
-  box-shadow: 0 6px 16px rgba(17,24,39,.05);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.form-title{font-weight:900;font-size:15px}
-.form-slug{color:var(--muted);font-size:12px;direction:ltr;text-align:left}
-.form-actions{display:flex;gap:8px;flex-wrap:wrap}
-.form-actions button{
-  padding:8px 10px;border-radius:12px;border:1px solid var(--border);
-  background:#fafafa;cursor:pointer;font-weight:900;font-family:inherit;
-}
-.form-actions button.primary{background:#fff;color:var(--brand);border-color:#e9d5ff}
-.form-actions button:hover{filter:brightness(.98)}
-@media (max-width:980px){ .form-card{grid-column:span 6;} }
-@media (max-width:640px){ .form-card{grid-column:span 12;} }
-
   </style>
 </head>
 
 <body>
   <div class="container">
 
-    <div class="hero">
+    <!-- TOP (user + time only) -->
+    <div class="topbar">
       <div>
         <h1 id="hello">مرحباً بك 👋</h1>
-        <p id="updated">Last update: —</p>
+        <div class="meta" id="updated">Last update: —</div>
       </div>
 
-      <div class="actions">
-        <button class="btn white" id="btnNewForm" type="button">+ إنشاء فورم</button>
-
-        <select id="formSelect" class="btn white">
-          <option value="">جاري تحميل الفورمات…</option>
-        </select>
+      <div class="right">
+        <div class="pill" title="النموذج الحالي">
+          <span>النموذج:</span>
+          <strong id="currentFormName">—</strong>
+        </div>
 
         <button class="btn white" id="btnOpenForm" type="button">فتح الفورم</button>
+        <button class="btn light" id="btnNewForm" type="button">+ إنشاء نموذج</button>
       </div>
     </div>
 
-    <div class="section-title" style="margin-top:18px">
-  <h2>نماذجي</h2>
-  <div class="sub">اختاري نموذج لإدارة إحصائياته أو افتحيه</div>
-</div>
-
-<div class="grid" id="formsGrid"></div>
-
-    <!-- Stats -->
-    <div class="grid">
-      <div class="card stat">
-        <div class="meta">
-          <div class="label">إجمالي الطلبات</div>
-          <div class="value" id="total">—</div>
-        </div>
-        <div class="iconbox" title="إجمالي">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3h18v6H3z"/><path d="M3 15h18v6H3z"/><path d="M3 9h18v6H3z"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="card stat">
-        <div class="meta">
-          <div class="label">مؤكدة</div>
-          <div class="value" id="confirmed">—</div>
-        </div>
-        <div class="pill" style="background:#ecfdf5;color:#166534;">تم التأكيد</div>
-      </div>
-
-      <div class="card stat">
-        <div class="meta">
-          <div class="label">معلّقة</div>
-          <div class="value" id="pending">—</div>
-        </div>
-        <div class="pill" style="background:#fffbeb;color:#92400e;">تحتاج متابعة</div>
-      </div>
-
-      <div class="card stat">
-        <div class="meta">
-          <div class="label">ملغية</div>
-          <div class="value" id="canceled">—</div>
-        </div>
-        <div class="pill" style="background:#fef2f2;color:#991b1b;">تم الإلغاء</div>
-      </div>
-
-      <div class="card stat">
-        <div class="meta">
-          <div class="label">المدن</div>
-          <div class="value" id="citiesCount">—</div>
-        </div>
-        <div class="iconbox" title="حسب المدينة">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 21s7-4.5 7-10a7 7 0 0 0-14 0c0 5.5 7 10 7 10z"/>
-            <circle cx="12" cy="11" r="2"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- By City -->
+    <!-- MY FORMS -->
     <div class="section-title">
-      <h2>حسب المدينة</h2>
-      <div class="sub" id="cityHint">—</div>
+      <h2>نماذجي</h2>
+      <div class="sub">اختاري نموذج لعرض الإحصائيات أو افتحيه</div>
     </div>
-    <div class="grid" id="citiesGrid"></div>
 
-    <!-- Latest -->
-    <div class="section-title">
-      <h2>آخر الطلبات</h2>
-      <div class="sub">اضغط واتساب للتواصل السريع</div>
+    <div class="grid" id="formsGrid">
+      <div class="empty">جاري تحميل النماذج…</div>
     </div>
-    <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>الاسم</th>
-            <th>المدينة</th>
-            <th>الحالة</th>
-            <th>التاريخ</th>
-            <th>واتساب</th>
-          </tr>
-        </thead>
-        <tbody id="latestBody"></tbody>
-      </table>
+
+    <!-- STATS (only show after selecting a form) -->
+    <div class="stats-wrap" id="statsWrap">
+      <div class="section-title">
+        <h2>إحصائيات النموذج</h2>
+        <div class="sub" id="statsHint">—</div>
+      </div>
+
+      <div class="card">
+        <div class="stats-head">
+          <div class="left">
+            <strong id="statsFormTitle" style="font-size:15px">—</strong>
+            <span class="tag" id="statsFormSlug">—</span>
+          </div>
+        </div>
+
+        <div class="chips">
+          <div class="chip">
+            <div>
+              <div class="k">Total</div>
+              <div class="v" id="total">—</div>
+            </div>
+            <span class="dot neutral"></span>
+          </div>
+
+          <div class="chip">
+            <div>
+              <div class="k">Confirmed</div>
+              <div class="v" id="confirmed">—</div>
+            </div>
+            <span class="dot ok"></span>
+          </div>
+
+          <div class="chip">
+            <div>
+              <div class="k">Pending</div>
+              <div class="v" id="pending">—</div>
+            </div>
+            <span class="dot warn"></span>
+          </div>
+
+          <div class="chip">
+            <div>
+              <div class="k">Canceled</div>
+              <div class="v" id="canceled">—</div>
+            </div>
+            <span class="dot bad"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <h2>حسب المدينة</h2>
+        <div class="sub" id="cityHint">—</div>
+      </div>
+      <div class="grid" id="citiesGrid"></div>
+
+      <div class="section-title">
+        <h2>آخر الطلبات</h2>
+        <div class="sub">اضغط واتساب للتواصل السريع</div>
+      </div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الاسم</th>
+              <th>المدينة</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+              <th>واتساب</th>
+            </tr>
+          </thead>
+          <tbody id="latestBody"></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 
-  <!-- Modal -->
+  <!-- MODAL -->
   <div id="modalBack">
-    <div id="modalCard">
-      <h3 style="margin:0 0 10px;font-weight:900">إنشاء فورم جديد</h3>
+    <div class="modal">
+      <h3>إنشاء نموذج جديد</h3>
 
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div>
-          <label style="font-weight:900;display:block;margin-bottom:6px">اسم الفورم</label>
-          <input id="newFormName" class="field" placeholder="مثال: طلبات رمضان" />
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="field">
+          <label>اسم النموذج</label>
+          <input id="newFormName" placeholder="مثال: طلبات رمضان" />
         </div>
 
-        <div>
-          <label style="font-weight:900;display:block;margin-bottom:6px">Slug (اختياري)</label>
-          <input id="newFormSlug" class="field" placeholder="ramadan-requests" />
-          <div style="color:#6b7280;font-size:12px;margin-top:6px">لو تركتيه فاضي بنولده تلقائياً.</div>
+        <div class="field">
+          <label>Slug (اختياري)</label>
+          <input id="newFormSlug" placeholder="ramadan-requests" style="direction:ltr;text-align:left" />
+          <div class="help">لو تركتيه فاضي بنولده تلقائياً.</div>
         </div>
 
         <div id="newFormMsg" class="msg"></div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-start;margin-top:6px">
+        <div style="display:flex;gap:10px;justify-content:flex-start;margin-top:2px">
           <button class="btn white" id="btnCreateForm" type="button">إنشاء</button>
           <button class="btn light" id="btnCloseModal" type="button">إغلاق</button>
         </div>
@@ -462,19 +450,15 @@
   </div>
 
 <script>
-  // ========= Helpers =========
+  // ---------- helpers ----------
   function num(n){ return Number(n || 0).toLocaleString("en-US"); }
 
   function fmtDate(iso){
     try{
       const d = new Date(iso);
       return d.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
+        year:"numeric", month:"short", day:"2-digit",
+        hour:"2-digit", minute:"2-digit", hour12:false
       });
     }catch(e){ return iso || "-" }
   }
@@ -482,16 +466,16 @@
   function statusBadge(status){
     const s = String(status || "").toLowerCase();
     if (s === "confirmed" || s === "received") {
-      return '<span class="status s-confirmed"><span class="dot"></span>مؤكد</span>';
+      return '<span class="status s-confirmed"><span class="sdot"></span>Confirmed</span>';
     }
     if (s === "canceled" || s === "cancelled") {
-      return '<span class="status s-canceled"><span class="dot"></span>ملغي</span>';
+      return '<span class="status s-canceled"><span class="sdot"></span>Canceled</span>';
     }
-    return '<span class="status s-pending"><span class="dot"></span>معلق</span>';
+    return '<span class="status s-pending"><span class="sdot"></span>Pending</span>';
   }
 
   function waLink(mobile, name, token){
-    if(!mobile || !token) return "#";
+    if(!mobile || !token) return "-";
     let m = String(mobile).trim();
     if(m.startsWith("05")) m = "966" + m.slice(1);
     if(m.startsWith("5") && m.length === 9) m = "966" + m;
@@ -499,176 +483,204 @@
 
     const confirmUrl = `https://talab.hindtech.sa/confirm.html?token=${token}`;
     const msg = encodeURIComponent(
-`مرحباً ${name || ""} 
-تم تسجيل طلبك بنجاح.
+`Hello ${name || ""}
 
-لتأكيد الاستلام اضغط على الرابط:
+Your request has been registered successfully.
+
+To confirm, open:
 ${confirmUrl}`
     );
     return `https://wa.me/${m}?text=${msg}`;
   }
 
-  async function loadUser() {
-    try {
-      const res = await fetch("/api/me");
-      if (!res.ok) throw new Error("unauthorized");
+  // ---------- state ----------
+  let FORMS_CACHE = [];
+  let CURRENT_FORM_ID = null;
+
+  function getCurrentForm(){
+    return FORMS_CACHE.find(f => Number(f.id) === Number(CURRENT_FORM_ID)) || null;
+  }
+
+  // ---------- auth/user ----------
+  async function loadUser(){
+    try{
+      const res = await fetch("/api/me", { credentials:"include" });
+      if(!res.ok) throw new Error("unauthorized");
       const u = await res.json();
-      const name = (u.name && u.name !== "مستخدم")
-        ? u.name
-        : (u.email ? u.email.split("@")[0] : "مستخدم");
+
+      const name =
+        (u.name && u.name !== "مستخدم")
+          ? u.name
+          : (u.email ? u.email.split("@")[0] : "مستخدم");
+
       return { name, email: u.email || "" };
-    } catch {
-      return { name: "مستخدم", email: "" };
+    }catch{
+      return { name:"مستخدم", email:"" };
     }
   }
 
-  // ========= State =========
-  let CURRENT_FORM_ID = 0;
-  let FORMS_CACHE = [];
-
-  // ========= Forms =========
+  // ---------- forms ----------
   async function loadMyForms(){
-    const res = await fetch("/api/forms", { credentials: "include" });
+    const res = await fetch("/api/forms", { credentials:"include" });
     if(!res.ok) throw new Error("forms load failed");
     const data = await res.json();
     if(!data.ok) throw new Error(data.error || "forms error");
     return data.forms || [];
   }
 
-  function setFormSelect(forms){
-    FORMS_CACHE = forms;
-
-    const sel = document.getElementById("formSelect");
-    sel.innerHTML = forms.map(f =>
-      `<option value="${f.id}">${f.name} (${f.slug})</option>`
-    ).join("");
-
-    const saved = Number(localStorage.getItem("current_form_id") || 0);
-    const first = Number(forms[0]?.id || 0);
-    CURRENT_FORM_ID = saved || first;
-
-    sel.value = String(CURRENT_FORM_ID);
-
-    sel.addEventListener("change", () => {
-      CURRENT_FORM_ID = Number(sel.value || 0);
-      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
-      loadDashboard();
-    });
-    renderFormsGrid(forms);
-
+  function openModal(){
+    document.getElementById("modalBack").style.display = "grid";
+    document.getElementById("newFormMsg").style.display = "none";
+    document.getElementById("newFormName").value = "";
+    document.getElementById("newFormSlug").value = "";
+  }
+  function closeModal(){
+    document.getElementById("modalBack").style.display = "none";
   }
 
-function renderFormsGrid(forms){
-  const grid = document.getElementById("formsGrid");
-  if(!grid) return;
+  function renderFormsGrid(){
+    const grid = document.getElementById("formsGrid");
 
-  grid.innerHTML = forms.map(f => {
-    const isCurrent = Number(f.id) === Number(CURRENT_FORM_ID);
-    return `
-      <div class="form-card" style="${isCurrent ? "border-color:#c4b5fd" : ""}">
-        <div class="form-title">${f.name}</div>
-        <div class="form-slug">${f.slug}</div>
-
-        <div class="form-actions">
-          <button class="primary" data-open="${f.id}">فتح</button>
-          <button data-select="${f.id}">الإحصائيات</button>
-          <button data-copy="${f.id}">نسخ الرابط</button>
-        </div>
+    // create card always first
+    const createCard = `
+      <div class="form-card create-card" id="createCard">
+        <div class="create-icon">+</div>
+        <div class="form-title">إنشاء نموذج</div>
+        <div class="create-hint">ابدئي نموذج جديد، وبعدها تقدري تفتحيه وتتابعي إحصائياته من هنا.</div>
       </div>
     `;
-  }).join("");
 
-  // events
-  grid.querySelectorAll("[data-open]").forEach(btn=>{
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-open");
-      window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
+    if(!FORMS_CACHE.length){
+      grid.innerHTML = createCard + `
+        <div class="form-card" style="grid-column:span 8">
+          <div class="form-title">لا يوجد نماذج بعد</div>
+          <div class="create-hint">اضغطي “إنشاء نموذج” للبدء.</div>
+        </div>
+      `;
+      document.getElementById("currentFormName").textContent = "—";
+      document.getElementById("statsWrap").classList.remove("show");
+      document.getElementById("createCard").addEventListener("click", openModal);
+      return;
+    }
+
+    const cards = FORMS_CACHE.map(f => {
+      const active = Number(f.id) === Number(CURRENT_FORM_ID);
+      const formLink = `/?form_id=${encodeURIComponent(f.id)}`;
+      return `
+        <div class="form-card ${active ? "active" : ""}">
+          <div class="form-title">${f.name}</div>
+          <div class="form-slug">${f.slug}</div>
+
+          <div class="form-actions">
+            <button class="primary" data-open="${f.id}">فتح</button>
+            <button data-stats="${f.id}">الإحصائيات</button>
+            <button data-copy="${f.id}">نسخ الرابط</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    grid.innerHTML = createCard + cards;
+
+    // events
+    document.getElementById("createCard").addEventListener("click", openModal);
+
+    grid.querySelectorAll("[data-open]").forEach(btn=>{
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-open");
+        window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
+      });
     });
-  });
 
-  grid.querySelectorAll("[data-select]").forEach(btn=>{
-    btn.addEventListener("click", () => {
-      const id = Number(btn.getAttribute("data-select"));
-      CURRENT_FORM_ID = id;
-      localStorage.setItem("current_form_id", String(id));
-      document.getElementById("formSelect").value = String(id);
-      renderFormsGrid(FORMS_CACHE);
-      loadDashboard();
+    grid.querySelectorAll("[data-stats]").forEach(btn=>{
+      btn.addEventListener("click", async () => {
+        const id = Number(btn.getAttribute("data-stats"));
+        CURRENT_FORM_ID = id;
+        localStorage.setItem("current_form_id", String(id));
+        renderFormsGrid();
+        await loadDashboardStats();
+      });
     });
-  });
 
-  grid.querySelectorAll("[data-copy]").forEach(btn=>{
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-copy");
-      const link = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
-      await navigator.clipboard.writeText(link);
-      btn.textContent = "تم النسخ ✅";
-      setTimeout(()=> btn.textContent = "نسخ الرابط", 900);
+    grid.querySelectorAll("[data-copy]").forEach(btn=>{
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-copy");
+        const link = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
+        await navigator.clipboard.writeText(link);
+        const old = btn.textContent;
+        btn.textContent = "تم النسخ ✅";
+        setTimeout(()=> btn.textContent = old, 900);
+      });
     });
-  });
-}
+  }
 
-
-  function getCurrentForm(){
-    return FORMS_CACHE.find(f => Number(f.id) === Number(CURRENT_FORM_ID));
+  function pickInitialFormId(){
+    const saved = localStorage.getItem("current_form_id");
+    const first = FORMS_CACHE[0]?.id;
+    CURRENT_FORM_ID = Number(saved || first || 0) || null;
+    // لو saved يشير لشي محذوف
+    if(CURRENT_FORM_ID && !FORMS_CACHE.some(f => Number(f.id) === Number(CURRENT_FORM_ID))){
+      CURRENT_FORM_ID = Number(first || 0) || null;
+      localStorage.setItem("current_form_id", String(CURRENT_FORM_ID || ""));
+    }
   }
 
   function openCurrentForm(){
-  const f = getCurrentForm();
-  if(!f) return alert("اختاري فورم أولاً");
-  window.open(`/?form_id=${encodeURIComponent(f.id)}`, "_blank");
-}
+    const f = getCurrentForm();
+    if(!f) return alert("اختاري نموذج أولاً");
+    window.open(`/?form_id=${encodeURIComponent(f.id)}`, "_blank");
+  }
 
+  // ---------- stats ----------
+  async function loadDashboardStats(){
+    const statsWrap = document.getElementById("statsWrap");
+    const f = getCurrentForm();
 
-  // ========= Dashboard =========
-  async function loadDashboard(){
-    if(!CURRENT_FORM_ID){
-      console.warn("No form selected");
+    if(!f || !CURRENT_FORM_ID){
+      statsWrap.classList.remove("show");
+      document.getElementById("currentFormName").textContent = "—";
       return;
     }
+
+    document.getElementById("currentFormName").textContent = f.name;
 
     const user = await loadUser();
     document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
     document.getElementById("updated").textContent = `Last update: ${new Date().toLocaleString("en-US")}`;
 
-    const res = await fetch(`/api/stats?form_id=${CURRENT_FORM_ID}`, { credentials: "include" });
+    const res = await fetch(`/api/stats?form_id=${encodeURIComponent(CURRENT_FORM_ID)}`, { credentials:"include" });
     if(!res.ok){
-      const t = await res.text().catch(()=> "");
-      console.error("STATS ERROR", res.status, t);
-      document.getElementById("total").textContent = "—";
-      document.getElementById("confirmed").textContent = "—";
-      document.getElementById("pending").textContent = "—";
-      document.getElementById("canceled").textContent = "—";
-      document.getElementById("citiesCount").textContent = "—";
-      document.getElementById("cityHint").textContent = "—";
-      document.getElementById("citiesGrid").innerHTML = "";
-      document.getElementById("latestBody").innerHTML = "";
+      statsWrap.classList.remove("show");
+      alert("تعذر تحميل الإحصائيات. تأكدي من صلاحيات Access أو من API.");
       return;
     }
-
     const data = await res.json();
 
-    // Cards
+    // show stats now
+    statsWrap.classList.add("show");
+    document.getElementById("statsFormTitle").textContent = f.name;
+    document.getElementById("statsFormSlug").textContent = f.slug;
+    document.getElementById("statsHint").textContent = `Form ID: ${f.id}`;
+
+    // cards
     document.getElementById("total").textContent = num(data?.cards?.total ?? 0);
     document.getElementById("confirmed").textContent = num(data?.cards?.confirmed ?? 0);
     document.getElementById("pending").textContent = num(data?.cards?.pending ?? 0);
     document.getElementById("canceled").textContent = num(data?.cards?.canceled ?? 0);
 
-    const citiesLen = (data?.byCity?.length ?? 0);
-    document.getElementById("citiesCount").textContent = num(citiesLen);
-    document.getElementById("cityHint").textContent = `عدد المدن: ${num(citiesLen)}`;
+    // cities
+    const byCity = data.byCity || [];
+    document.getElementById("cityHint").textContent = `Cities: ${num(byCity.length)}`;
 
-    // Cities (cards)
     const citiesGrid = document.getElementById("citiesGrid");
-    citiesGrid.innerHTML = (data.byCity || []).map(c => {
+    citiesGrid.innerHTML = byCity.map(c => {
       const total = Number(c.total || 0);
       const confirmed = Number(c.confirmed || 0);
       const percent = total ? Math.round((confirmed / total) * 100) : 0;
-
       return `
         <div class="city-card">
           <div class="city-name">${c.city || "-"}</div>
-          <div class="circle" style="--p:${percent}">${num(percent)}%</div>
+          <div class="circle" style="--p:${percent}">${percent}%</div>
           <div class="city-meta">
             <span>Confirmed: ${num(confirmed)}</span>
             <span>Total: ${num(total)}</span>
@@ -677,9 +689,10 @@ function renderFormsGrid(forms){
       `;
     }).join("");
 
-    // Latest table
+    // latest table
     const latestBody = document.getElementById("latestBody");
-    latestBody.innerHTML = (data.latest || []).map(r => `
+    const latest = data.latest || [];
+    latestBody.innerHTML = latest.map(r => `
       <tr>
         <td data-label="#">${num(r.id)}</td>
         <td data-label="الاسم">${r.name || "-"}</td>
@@ -692,102 +705,116 @@ function renderFormsGrid(forms){
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.5 3.5A11 11 0 0 0 3.3 18.7L2 22l3.4-1.2A11 11 0 0 0 20.5 3.5ZM12 20a9 9 0 0 1-4.6-1.3l-.3-.2-2 .7.7-2-.2-.3A9 9 0 1 1 12 20Zm5-6.1c-.3-.1-1.7-.8-2-1s-.5-.1-.7.1-.8 1-.9 1.2-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.1-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5s0-.3 0-.5-.7-1.7-1-2.3c-.3-.6-.6-.5-.7-.5h-.6c-.2 0-.5.1-.7.3s-1 1-1 2.4 1 2.8 1.1 3 .3.5.5.8a11 11 0 0 0 4.2 3.8c.6.3 1.1.5 1.5.7.6.2 1.1.2 1.5.1.5-.1 1.7-.7 1.9-1.3s.2-1.1.1-1.3-.2-.1-.5-.3Z"/>
               </svg>
-              واتساب
+              WhatsApp
             </a>
-          ` : `<span style="color:#9ca3af">غير متاح</span>`}
+          ` : `<span style="color:#9ca3af;font-weight:800">N/A</span>`}
         </td>
       </tr>
     `).join("");
   }
 
-  // ========= Modal (Create Form) =========
-  const modalBack = document.getElementById("modalBack");
-  const btnNewForm = document.getElementById("btnNewForm");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCreateForm = document.getElementById("btnCreateForm");
-  const newFormName = document.getElementById("newFormName");
-  const newFormSlug = document.getElementById("newFormSlug");
-  const newFormMsg = document.getElementById("newFormMsg");
-
-  function openModal(){
-    modalBack.style.display = "grid";
-    newFormMsg.style.display = "none";
-    newFormName.value = "";
-    newFormSlug.value = "";
-  }
-  function closeModal(){ modalBack.style.display = "none"; }
-
-  btnNewForm.addEventListener("click", openModal);
-  document.getElementById("btnCloseModal").addEventListener("click", closeModal);
-  modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
-
+  // ---------- create form ----------
   async function createForm(){
-    newFormMsg.style.display = "block";
-    newFormMsg.style.background = "#fafafa";
-    newFormMsg.style.borderColor = "#e5e7eb";
-    newFormMsg.textContent = "جارٍ إنشاء الفورم...";
-    window.open(`/?form_id=${encodeURIComponent(data.form.id)}`, "_blank");
-
+    const msg = document.getElementById("newFormMsg");
+    msg.style.display = "block";
+    msg.style.background = "#fafafa";
+    msg.style.borderColor = "#e5e7eb";
+    msg.textContent = "جارٍ إنشاء النموذج...";
 
     const payload = {
-      name: newFormName.value.trim(),
-      slug: newFormSlug.value.trim()
+      name: document.getElementById("newFormName").value.trim(),
+      slug: document.getElementById("newFormSlug").value.trim()
     };
 
     const res = await fetch("/api/forms-create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
       body: JSON.stringify(payload),
-      credentials: "include"
+      credentials:"include"
     });
 
     const data = await res.json().catch(()=> ({}));
 
     if(!res.ok || !data.ok){
-      let msg = data.error || "فشل إنشاء الفورم";
-      if(msg === "SLUG_EXISTS") msg = "الـ slug مستخدم مسبقاً، غيريه.";
-      if(msg === "NAME_REQUIRED") msg = "اكتبي اسم الفورم.";
-      newFormMsg.style.background = "#fef2f2";
-      newFormMsg.style.borderColor = "#fecaca";
-      newFormMsg.textContent = msg;
+      let m = data.error || "فشل إنشاء النموذج";
+      if(m === "NAME_REQUIRED") m = "اكتبي اسم النموذج.";
+      if(m === "SLUG_EXISTS") m = "الـ slug مستخدم مسبقاً، غيريه.";
+      msg.style.background = "#fef2f2";
+      msg.style.borderColor = "#fecaca";
+      msg.textContent = m;
       return;
     }
 
-    newFormMsg.style.background = "#ecfdf5";
-    newFormMsg.style.borderColor = "#bbf7d0";
-    newFormMsg.textContent = `✅ تم إنشاء الفورم: ${data.form.name}`;
+    msg.style.background = "#ecfdf5";
+    msg.style.borderColor = "#bbf7d0";
+    msg.textContent = `✅ تم إنشاء النموذج: ${data.form.name}`;
 
-    // إعادة تحميل الفورمات + اختيار الجديد
-    const forms = await loadMyForms();
-    setFormSelect(forms);
+    // Reload forms, select new one, open it immediately
+    try{
+      FORMS_CACHE = await loadMyForms();
+      pickInitialFormId();
 
-    CURRENT_FORM_ID = Number(data.form.id || CURRENT_FORM_ID);
-localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+      // prefer the newly created
+      if(data.form?.id){
+        CURRENT_FORM_ID = Number(data.form.id);
+        localStorage.setItem("current_form_id", String(CURRENT_FORM_ID));
+      }
 
-// افتحيه مباشرة
-window.open(`/?form_id=${encodeURIComponent(data.form.id)}`, "_blank");
+      renderFormsGrid();
+      await loadDashboardStats();
 
-setTimeout(()=> closeModal(), 450);
-    loadDashboard();
+      // افتحي الفورم مباشرة (New Tab)
+      window.open(`/?form_id=${encodeURIComponent(CURRENT_FORM_ID)}`, "_blank");
+    }catch(e){
+      console.log(e);
+    }
+
+    setTimeout(closeModal, 450);
   }
 
-  btnCreateForm.addEventListener("click", createForm);
+  // ---------- boot ----------
+  (async function init(){
+    // wire modal
+    document.getElementById("btnNewForm").addEventListener("click", openModal);
+    document.getElementById("btnCloseModal").addEventListener("click", closeModal);
+    document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id === "modalBack") closeModal(); });
+    document.getElementById("btnCreateForm").addEventListener("click", createForm);
 
-  // ========= Init =========
-  document.getElementById("btnOpenForm").addEventListener("click", openCurrentForm);
+    // open current form button
+    document.getElementById("btnOpenForm").addEventListener("click", openCurrentForm);
 
-  (async () => {
-    const forms = await loadMyForms();
-    if(!forms.length){
-      alert("لا يوجد فورمات لديك. أنشئي فورم جديد.");
-      return;
+    // user header
+    const user = await loadUser();
+    document.getElementById("hello").textContent = `مرحباً بك، ${user.name} 👋`;
+    document.getElementById("updated").textContent = `Last update: ${new Date().toLocaleString("en-US")}`;
+
+    // load forms
+    try{
+      FORMS_CACHE = await loadMyForms();
+      pickInitialFormId();
+      renderFormsGrid();
+
+      // لا نظهر الإحصائيات إلا إذا فيه فورم محدد
+      if(CURRENT_FORM_ID){
+        await loadDashboardStats();
+      }
+    }catch(e){
+      console.log(e);
+      const grid = document.getElementById("formsGrid");
+      grid.innerHTML = `
+        <div class="form-card create-card" id="createCard">
+          <div class="create-icon">+</div>
+          <div class="form-title">إنشاء نموذج</div>
+          <div class="create-hint">ابدئي نموذج جديد.</div>
+        </div>
+        <div class="form-card" style="grid-column:span 8">
+          <div class="form-title">تعذر تحميل النماذج</div>
+          <div class="create-hint">تأكدي من صلاحيات Cloudflare Access لمسار /api/forms</div>
+        </div>
+      `;
+      document.getElementById("createCard").addEventListener("click", openModal);
     }
-    setFormSelect(forms);
-
-
-    loadDashboard();
   })();
-
 </script>
 
 </body>
