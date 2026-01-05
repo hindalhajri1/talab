@@ -595,6 +595,75 @@
   }
 
   // ---------------- UI: forms grid ----------------
+
+  let DELETE_TARGET_ID = null;
+
+function openDeleteModal(form){
+  DELETE_TARGET_ID = Number(form.id);
+  document.getElementById("deleteFormName").textContent = `${form.name}  (${form.slug})`;
+  const back = document.getElementById("deleteBack");
+  const msg = document.getElementById("deleteMsg");
+  msg.style.display = "none";
+  back.style.display = "grid";
+}
+
+function closeDeleteModal(){
+  document.getElementById("deleteBack").style.display = "none";
+  DELETE_TARGET_ID = null;
+}
+
+// wire modal once
+(function wireDeleteModal(){
+  const back = document.getElementById("deleteBack");
+  const close = document.getElementById("btnDeleteClose");
+  const cancel = document.getElementById("btnDeleteCancel");
+  const confirmBtn = document.getElementById("btnDeleteConfirm");
+
+  close.addEventListener("click", closeDeleteModal);
+  cancel.addEventListener("click", closeDeleteModal);
+
+  back.addEventListener("click", (e)=>{
+    if(e.target === back) closeDeleteModal();
+  });
+
+  confirmBtn.addEventListener("click", async ()=>{
+    const msg = document.getElementById("deleteMsg");
+    if(!DELETE_TARGET_ID) return;
+
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = "0.7";
+
+    msg.style.display = "block";
+    msg.style.background = "#fafafa";
+    msg.style.borderColor = "#e5e7eb";
+    msg.style.color = "#111827";
+    msg.textContent = "جارٍ الحذف...";
+
+    try{
+      await apiDeleteForm(DELETE_TARGET_ID);
+
+      // احذف من القائمة واعرضها فوراً
+      FORMS = FORMS.filter(f => Number(f.id) !== Number(DELETE_TARGET_ID));
+      renderForms();
+
+      msg.style.background = "#ecfdf5";
+      msg.style.borderColor = "#bbf7d0";
+      msg.style.color = "#166534";
+      msg.textContent = "تم الحذف ✅";
+
+      setTimeout(closeDeleteModal, 350);
+    }catch(e){
+      msg.style.background = "#fef2f2";
+      msg.style.borderColor = "#fecaca";
+      msg.style.color = "#991b1b";
+      msg.textContent = "فشل الحذف: " + (e.message || e);
+    }finally{
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = "1";
+    }
+  });
+})();
+
  function renderForms(){
   const grid = document.getElementById("formsGrid");
 
@@ -631,12 +700,16 @@
   document.getElementById("createCard").addEventListener("click", openModal);
 
   // ✅ الضغط على البطاقة نفسها = فتح الفورم (بدون Panel)
-  grid.querySelectorAll("[data-card]").forEach(card=>{
-    card.addEventListener("click", () => {
-      const id = card.getAttribute("data-card");
-      window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
-    });
+ grid.querySelectorAll("[data-delete]").forEach(btn=>{
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation(); // مهم: لا يفتح الفورم عند الضغط على حذف
+    const id = Number(btn.getAttribute("data-delete"));
+    const form = FORMS.find(x => Number(x.id) === Number(id));
+    if(!form) return;
+    openDeleteModal(form);
   });
+});
+
 
   // ✅ زر فتح
   grid.querySelectorAll("[data-open]").forEach(btn=>{
@@ -918,6 +991,40 @@
   })();
 
 </script>
+<!-- DELETE MODAL -->
+<div id="deleteBack" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;place-items:center;padding:18px;z-index:9999">
+  <div style="width:min(520px,100%);background:#fff;border-radius:18px;padding:16px;border:1px solid #e5e7eb;box-shadow:0 10px 24px rgba(17,24,39,.10)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+      <h3 style="margin:0;font-weight:900">تأكيد الحذف</h3>
+      <button id="btnDeleteClose" type="button"
+        style="border:0;background:transparent;cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#fef2f2;border:1px solid #fee2e2;color:#b91c1c;font-weight:900">
+        !
+      </div>
+
+      <div style="flex:1">
+        <div style="font-weight:900;margin-bottom:6px">
+          هل أنتِ متأكدة من حذف النموذج؟
+        </div>
+        <div id="deleteFormName" style="color:#6b7280;font-weight:800"></div>
+
+        <div style="margin-top:12px;color:#991b1b;font-weight:800;font-size:13px">
+          ⚠️ سيتم حذف النموذج وربما بياناته المرتبطة (حسب إعدادات قاعدة البيانات).
+        </div>
+      </div>
+    </div>
+
+    <div id="deleteMsg" style="display:none;margin-top:12px;padding:10px;border-radius:12px;border:1px solid #e5e7eb;background:#fafafa;font-weight:900"></div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-start;margin-top:14px">
+      <button class="btn danger" id="btnDeleteConfirm" type="button">حذف نهائي</button>
+      <button class="btn" id="btnDeleteCancel" type="button">إلغاء</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
