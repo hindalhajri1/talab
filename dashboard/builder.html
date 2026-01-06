@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>محرر النموذج</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --brand:#5b2ea6; --brand2:#7a43d1; --bad:#ef4444; --ok:#16a34a;
+      --shadow:0 10px 24px rgba(17,24,39,.06); --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Tajawal",system-ui;background:var(--bg);color:var(--text)}
+    .top{
+      padding:14px 16px;
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:#fff; box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .top h1{margin:0;font-size:16px;font-weight:900}
+    .top .meta{font-weight:800;font-size:12px;opacity:.9}
+    .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 10px;font-weight:900;font-size:12px;direction:ltr}
+    .wrap{max-width:1200px;margin:14px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:320px 1fr 360px;gap:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 16px rgba(17,24,39,.05);overflow:hidden}
+    .card-h{padding:12px 12px;border-bottom:1px solid var(--border);font-weight:900}
+    .card-b{padding:12px}
+    .hint{color:var(--muted);font-weight:800;font-size:12px;line-height:1.7}
+    .btn{border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 12px;font-weight:900;font-family:inherit;cursor:pointer}
+    .btn.primary{border-color:#e9d5ff;color:var(--brand)}
+    .btn.danger{border-color:#fee2e2;color:#b91c1c}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .row{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    label{font-weight:900;font-size:13px}
+    input,select,textarea{
+      width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);
+      font-family:inherit;font-size:14px;outline:none;background:#fff
+    }
+    textarea{min-height:90px;resize:vertical}
+    .small{font-size:12px;color:var(--muted);font-weight:800}
+    .list{display:flex;flex-direction:column;gap:10px}
+
+    /* palette items */
+    .palette-item{
+      border:1px solid var(--border);border-radius:14px;padding:10px;
+      background:#fff;cursor:grab;user-select:none;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+    }
+    .palette-item:active{cursor:grabbing}
+    .tag{font-size:11px;font-weight:900;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 8px;direction:ltr}
+
+    /* canvas fields */
+    .dropzone{
+      border:2px dashed #d6ccff;border-radius:18px;padding:12px;
+      background:linear-gradient(180deg, rgba(124,58,237,.05), rgba(124,58,237,.01));
+      min-height:360px;
+    }
+    .field-card{
+      border:1px solid var(--border);border-radius:16px;padding:12px;background:#fff;
+      display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+    }
+    .field-card.selected{border-color:#c4b5fd;box-shadow:0 10px 22px rgba(91,46,166,.10)}
+    .field-title{font-weight:900}
+    .field-sub{color:var(--muted);font-size:12px;font-weight:800;direction:ltr;text-align:left;margin-top:4px}
+    .field-actions{display:flex;gap:8px}
+    .drag-handle{cursor:grab;user-select:none;font-weight:900;color:var(--muted)}
+    .msg{display:none;margin-top:10px;border:1px solid var(--border);background:#fafafa;border-radius:12px;padding:10px;font-weight:900;line-height:1.7}
+    .msg.ok{border-color:#bbf7d0;background:#ecfdf5;color:#166534}
+    .msg.err{border-color:#fecaca;background:#fef2f2;color:#991b1b}
+
+    @media (max-width: 1020px){
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top">
+    <div>
+      <h1 id="title">محرر النموذج</h1>
+      <div class="meta" id="meta">Form: —</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="pill" id="userEmail">—</div>
+      <button class="btn" id="btnOpenPublic" type="button">فتح النموذج العام</button>
+      <button class="btn primary" id="btnReload" type="button">تحديث</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <!-- LEFT: Palette -->
+      <div class="card">
+        <div class="card-h">الحقول الجاهزة</div>
+        <div class="card-b">
+          <div class="hint">اسحبي الحقل وأفلتيه داخل النموذج.</div>
+          <div style="height:10px"></div>
+          <div class="list" id="palette"></div>
+        </div>
+      </div>
+
+      <!-- CENTER: Canvas -->
+      <div class="card">
+        <div class="card-h" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <span>النموذج</span>
+          <span class="small" id="countHint">—</span>
+        </div>
+
+        <div class="card-b">
+          <div class="dropzone" id="dropzone">
+            <div class="hint" id="emptyHint">لا توجد حقول بعد… اسحبي من اليسار للبدء.</div>
+            <div class="list" id="fieldsList"></div>
+          </div>
+
+          <div class="msg" id="toast"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Properties -->
+      <div class="card">
+        <div class="card-h">خصائص الحقل</div>
+        <div class="card-b">
+          <div class="hint">اختاري حقلًا من النموذج لتعديل خصائصه.</div>
+          <div style="height:10px"></div>
+
+          <div id="propsEmpty" class="hint">لا يوجد حقل محدد.</div>
+
+          <div id="props" style="display:none">
+            <div class="row">
+              <label>العنوان (Label)</label>
+              <input id="pLabel" placeholder="مثال: الاسم الكامل" />
+            </div>
+
+            <div class="row">
+              <label>المفتاح (Key)</label>
+              <input id="pKey" placeholder="name" style="direction:ltr;text-align:left" />
+              <div class="small">هذا المفتاح يُستخدم داخل /api/register (مثل: name, mobile...)</div>
+            </div>
+
+            <div class="row">
+              <label>النوع</label>
+              <select id="pType">
+                <option value="text">Text</option>
+                <option value="tel">Tel</option>
+                <option value="number">Number</option>
+                <option value="email">Email</option>
+                <option value="date">Date</option>
+                <option value="textarea">Textarea</option>
+                <option value="select">Select</option>
+              </select>
+            </div>
+
+            <div class="row" id="pOptionsRow" style="display:none">
+              <label>خيارات Select</label>
+              <textarea id="pOptions" placeholder="اكتب كل خيار بسطر&#10;الرياض&#10;الدمام&#10;..."></textarea>
+              <div class="small">بنخزنها داخل options_json.options</div>
+            </div>
+
+            <div class="row">
+              <label>
+                <input type="checkbox" id="pRequired" />
+                مطلوب (Required)
+              </label>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" id="btnSave" type="button">حفظ</button>
+              <button class="btn danger" id="btnDelete" type="button">حذف الحقل</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // -------- helpers ----------
+  const $ = (id)=>document.getElementById(id);
+
+  function esc(s){
+    return String(s||"").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  function toast(type, text){
+    const t = $("toast");
+    t.className = "msg " + (type === "ok" ? "ok" : "err");
+    t.style.display = "block";
+    t.textContent = text;
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(()=>{ t.style.display="none"; }, 1700);
+  }
+
+  function getFormId(){
+    const p = new URLSearchParams(location.search);
+    const id = (p.get("form_id") || p.get("id") || "").trim();
+    return id ? Number(id) : null;
+  }
+
+  function publicFormLink(id){
+    return `${location.origin}/?form_id=${encodeURIComponent(id)}`;
+  }
+
+  async function safeJson(res){
+    const ct = (res.headers.get("content-type")||"").toLowerCase();
+    const text = await res.text();
+    if(!ct.includes("application/json")) throw new Error("NOT_JSON");
+    return JSON.parse(text);
+  }
+
+  // -------- state ----------
+  const PRESET_FIELDS = [
+    { label:"الاسم", key:"name", type:"text", required:true, tag:"Common" },
+    { label:"رقم الجوال", key:"mobile", type:"tel", required:true, tag:"Common" },
+    { label:"المدينة", key:"city", type:"select", required:true, tag:"Common", options:["الدمام","الخبر","الظهران","القطيف","الجبيل","الأحساء","الرياض","جدة"] },
+    { label:"العدد", key:"count", type:"number", required:true, tag:"Common" },
+    { label:"البريد الإلكتروني", key:"email", type:"email", required:false, tag:"Common" },
+    { label:"ملاحظات", key:"notes", type:"textarea", required:false, tag:"Extra" },
+    { label:"تاريخ", key:"date", type:"date", required:false, tag:"Extra" },
+    { label:"نص قصير (مفتاح مخصص)", key:"custom_text", type:"text", required:false, tag:"Custom" },
+  ];
+
+  let FORM = null;
+  let FIELDS = [];
+  let SELECTED_ID = null;
+
+  // -------- API ----------
+  async function apiMe(){
+    const r = await fetch("/api/me", { credentials:"include", cache:"no-store" });
+    if(!r.ok) return { email:"" };
+    return r.json();
+  }
+
+  async function apiFormGet(form_id){
+    const r = await fetch(`/api/form?form_id=${encodeURIComponent(form_id)}&t=${Date.now()}`, {
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Accept":"application/json" }
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FORM_GET_FAILED");
+    return j;
+  }
+
+  async function apiFieldsList(form_id){
+    const r = await fetch(`/api/fields-list?form_id=${encodeURIComponent(form_id)}&t=${Date.now()}`, {
+      credentials:"include", cache:"no-store", headers:{ "Accept":"application/json" }
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FIELDS_LIST_FAILED");
+    return j.rows || [];
+  }
+
+  async function apiFieldsAdd(payload){
+    const r = await fetch("/api/fields-add", {
+      method:"POST",
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FIELDS_ADD_FAILED");
+    return j.field;
+  }
+
+  async function apiFieldsUpdate(payload){
+    const r = await fetch("/api/fields-update", {
+      method:"POST",
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FIELDS_UPDATE_FAILED");
+    return true;
+  }
+
+  async function apiFieldsDelete(id){
+    const r = await fetch("/api/fields-delete", {
+      method:"POST",
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify({ id })
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FIELDS_DELETE_FAILED");
+    return true;
+  }
+
+  async function apiFieldsReorder(form_id, orderedIds){
+    const r = await fetch("/api/fields-reorder", {
+      method:"POST",
+      credentials:"include",
+      cache:"no-store",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify({ form_id, ordered_ids: orderedIds })
+    });
+    const j = await safeJson(r);
+    if(!r.ok || !j.ok) throw new Error(j.error || "FIELDS_REORDER_FAILED");
+    return true;
+  }
+
+  // -------- render ----------
+  function renderPalette(){
+    const box = $("palette");
+    box.innerHTML = PRESET_FIELDS.map((f, idx)=>`
+      <div class="palette-item" draggable="true" data-preset="${idx}">
+        <div>
+          <div style="font-weight:900">${esc(f.label)}</div>
+          <div class="small" style="direction:ltr;text-align:left">${esc(f.key)} • ${esc(f.type)}</div>
+        </div>
+        <span class="tag">${esc(f.tag)}</span>
+      </div>
+    `).join("");
+
+    box.querySelectorAll("[data-preset]").forEach(el=>{
+      el.addEventListener("dragstart", (e)=>{
+        e.dataTransfer.setData("text/plain", el.getAttribute("data-preset"));
+      });
+    });
+  }
+
+  function fieldKeyFromOptionsJson(options_json){
+    try{
+      const o = typeof options_json === "string" ? JSON.parse(options_json) : options_json;
+      return String(o?.key || "").trim();
+    }catch{ return "" }
+  }
+
+  function parseOptionsJson(options_json){
+    try{
+      return typeof options_json === "string" ? JSON.parse(options_json) : (options_json || {});
+    }catch{ return {} }
+  }
+
+  function renderFields(){
+    const list = $("fieldsList");
+    const empty = $("emptyHint");
+    $("countHint").textContent = `عدد الحقول: ${FIELDS.length}`;
+
+    if(!FIELDS.length){
+      empty.style.display = "block";
+      list.innerHTML = "";
+      return;
+    }
+    empty.style.display = "none";
+
+    list.innerHTML = FIELDS.map(f=>{
+      const opt = parseOptionsJson(f.options_json);
+      const key = fieldKeyFromOptionsJson(f.options_json);
+      const type = String(f.field_type || "text");
+      const required = Number(f.required) === 1;
+      const selected = Number(f.id) === Number(SELECTED_ID);
+
+      return `
+        <div class="field-card ${selected ? "selected":""}" data-id="${f.id}" draggable="true">
+          <div style="flex:1">
+            <div class="field-title">${esc(f.label || key || "Field")} ${required ? `<span style="color:var(--bad)">*</span>`:""}</div>
+            <div class="field-sub">${esc(key)} • ${esc(type)} • sort:${esc(f.sort_order)}</div>
+            ${type === "select" ? `<div class="small">options: ${(opt.options||[]).length}</div>` : ``}
+          </div>
+          <div class="field-actions">
+            <span class="drag-handle" title="اسحب للترتيب">⋮⋮</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // click select
+    list.querySelectorAll("[data-id]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        SELECTED_ID = Number(el.getAttribute("data-id"));
+        renderFields();
+        renderProps();
+      });
+    });
+
+    // drag reorder
+    list.querySelectorAll("[data-id]").forEach(el=>{
+      el.addEventListener("dragstart", (e)=>{
+        e.dataTransfer.setData("text/field-id", el.getAttribute("data-id"));
+      });
+    });
+
+    list.addEventListener("dragover", (e)=>e.preventDefault());
+    list.addEventListener("drop", async (e)=>{
+      e.preventDefault();
+      const draggedId = e.dataTransfer.getData("text/field-id");
+      if(!draggedId) return;
+
+      const target = e.target.closest("[data-id]");
+      if(!target) return;
+
+      const targetId = target.getAttribute("data-id");
+      if(String(targetId) === String(draggedId)) return;
+
+      const ids = FIELDS.map(x=>String(x.id));
+      const from = ids.indexOf(String(draggedId));
+      const to = ids.indexOf(String(targetId));
+      if(from < 0 || to < 0) return;
+
+      ids.splice(to, 0, ids.splice(from, 1)[0]);
+
+      // optimistic reorder locally
+      const map = new Map(FIELDS.map(x=>[String(x.id), x]));
+      FIELDS = ids.map((id, i)=>{
+        const item = map.get(id);
+        return { ...item, sort_order: i+1 };
+      });
+
+      renderFields();
+
+      try{
+        await apiFieldsReorder(FORM.id, ids.map(x=>Number(x)));
+        toast("ok", "تم تحديث الترتيب ✅");
+        await reloadFields(); // يضمن sort_order مطابق للداتا
+      }catch(err){
+        toast("err", "فشل ترتيب الحقول");
+        await reloadFields();
+      }
+    });
+  }
+
+  function renderProps(){
+    const f = FIELDS.find(x=>Number(x.id)===Number(SELECTED_ID));
+    if(!f){
+      $("propsEmpty").style.display = "block";
+      $("props").style.display = "none";
+      return;
+    }
+    $("propsEmpty").style.display = "none";
+    $("props").style.display = "block";
+
+    const opt = parseOptionsJson(f.options_json);
+    const key = fieldKeyFromOptionsJson(f.options_json);
+
+    $("pLabel").value = f.label || "";
+    $("pKey").value = key || "";
+    $("pType").value = String(f.field_type || "text").toLowerCase();
+    $("pRequired").checked = Number(f.required) === 1;
+
+    $("pOptionsRow").style.display = ($("pType").value === "select") ? "block" : "none";
+    $("pOptions").value = Array.isArray(opt.options) ? opt.options.join("\n") : "";
+
+    $("pType").onchange = ()=>{
+      $("pOptionsRow").style.display = ($("pType").value === "select") ? "block" : "none";
+    };
+
+    $("btnSave").onclick = saveSelected;
+    $("btnDelete").onclick = deleteSelected;
+  }
+
+  // -------- actions ----------
+  async function reloadFields(){
+    FIELDS = await apiFieldsList(FORM.id);
+    // ensure sorted
+    FIELDS.sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+    renderFields();
+    renderProps();
+  }
+
+  async function addPreset(idx){
+    const preset = PRESET_FIELDS[idx];
+    if(!preset) return;
+
+    const payload = {
+      form_id: FORM.id,
+      label: preset.label,
+      field_type: preset.type,
+      required: preset.required ? 1 : 0,
+      options_json: JSON.stringify({
+        key: preset.key,
+        options: preset.type === "select" ? (preset.options || []) : undefined
+      })
+    };
+
+    const field = await apiFieldsAdd(payload);
+    SELECTED_ID = Number(field.id);
+    await reloadFields();
+    toast("ok", "تمت إضافة الحقل ✅");
+  }
+
+  async function saveSelected(){
+    const f = FIELDS.find(x=>Number(x.id)===Number(SELECTED_ID));
+    if(!f) return;
+
+    const label = $("pLabel").value.trim();
+    const key = $("pKey").value.trim();
+    const type = $("pType").value;
+    const required = $("pRequired").checked ? 1 : 0;
+
+    if(!key){
+      toast("err", "Key مطلوب");
+      return;
+    }
+
+    const options = (type === "select")
+      ? $("pOptions").value.split("\n").map(s=>s.trim()).filter(Boolean)
+      : undefined;
+
+    const options_json = JSON.stringify({
+      key,
+      ...(type === "select" ? { options } : {})
+    });
+
+    await apiFieldsUpdate({
+      id: f.id,
+      label,
+      field_type: type,
+      required,
+      options_json
+    });
+
+    toast("ok", "تم الحفظ ✅");
+    await reloadFields();
+  }
+
+  async function deleteSelected(){
+    const f = FIELDS.find(x=>Number(x.id)===Number(SELECTED_ID));
+    if(!f) return;
+
+    const ok = confirm(`تأكيد حذف الحقل:\n${f.label || "Field"}`);
+    if(!ok) return;
+
+    await apiFieldsDelete(f.id);
+    SELECTED_ID = null;
+    toast("ok", "تم الحذف ✅");
+    await reloadFields();
+  }
+
+  // -------- dropzone for preset ----------
+  function wireDropzone(){
+    const dz = $("dropzone");
+    dz.addEventListener("dragover", (e)=>e.preventDefault());
+    dz.addEventListener("drop", async (e)=>{
+      e.preventDefault();
+      const idx = e.dataTransfer.getData("text/plain");
+      if(idx === "" || idx === null) return;
+      try{
+        await addPreset(Number(idx));
+      }catch(err){
+        console.log(err);
+        toast("err", "فشل إضافة الحقل");
+      }
+    });
+  }
+
+  // -------- boot ----------
+  (async function init(){
+    const form_id = getFormId();
+    if(!form_id){
+      alert("افتحي الصفحة مع ?form_id=ID");
+      return;
+    }
+
+    renderPalette();
+    wireDropzone();
+
+    $("btnReload").onclick = async ()=>{
+      try{ await reloadFields(); toast("ok","تم التحديث ✅"); }catch(e){ toast("err","تعذر التحديث"); }
+    };
+
+    $("btnOpenPublic").onclick = ()=> window.open(publicFormLink(form_id), "_blank");
+
+    // header info
+    try{
+      const me = await apiMe();
+      $("userEmail").textContent = (me.email || "").trim() || "—";
+    }catch{}
+
+    // load form + fields
+    const formData = await apiFormGet(form_id);
+    FORM = formData.form;
+
+    $("title").textContent = `محرر: ${FORM.name || "نموذج"}`;
+    $("meta").textContent = `Form ID: ${FORM.id} • Active: ${FORM.is_active}`;
+
+    await reloadFields();
+  })();
+</script>
+</body>
+</html>
