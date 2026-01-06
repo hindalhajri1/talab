@@ -1,4 +1,4 @@
-export async function getForm(request, env) {
+export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const formId = Number(url.searchParams.get("form_id"));
   if (!Number.isFinite(formId) || formId <= 0) {
@@ -6,7 +6,7 @@ export async function getForm(request, env) {
   }
 
   const form = await env.DB
-    .prepare(`SELECT * FROM forms WHERE id = ?`)
+    .prepare(`SELECT id, name, slug, is_active FROM forms WHERE id = ? LIMIT 1`)
     .bind(formId)
     .first();
 
@@ -14,25 +14,37 @@ export async function getForm(request, env) {
 
   const rows = await env.DB
     .prepare(`
-      SELECT id, field_key, label, type, placeholder, required, options_json, settings_json, sort_order
+      SELECT id, form_id, label, field_type, required, options_json, sort_order, is_active, created_at
       FROM form_fields
-      WHERE form_id = ?
+      WHERE form_id = ? AND is_active = 1
       ORDER BY sort_order ASC, id ASC
     `)
     .bind(formId)
     .all();
 
+  // نخليها بنفس شكل اللي يفهمه index.html عندك:
   const fields = (rows.results || []).map(r => ({
     id: r.id,
-    field_key: r.field_key,
+    form_id: r.form_id,
     label: r.label,
-    type: r.type,
-    placeholder: r.placeholder,
-    required: !!r.required,
-    options: safeJsonParse(r.options_json, []),
-    settings: safeJsonParse(r.settings_json, {}),
+    field_type: r.field_type,
+    required: r.required,
+    options_json: r.options_json, // يحتوي {"key":"name", ...}
     sort_order: r.sort_order,
+    is_active: r.is_active,
+    created_at: r.created_at,
   }));
 
   return json({ ok: true, form, fields });
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-store",
+    },
+  });
 }

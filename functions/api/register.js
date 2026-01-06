@@ -66,12 +66,17 @@ export async function onRequestPost({ request, env }) {
 
     const token = crypto.randomUUID();
     const now = new Date().toISOString();
+    const data_json = JSON.stringify(data);
 
-    // مهم: يفترض عندك requests فيها form_id (لأنك سويت index عليه)
+    // نحاول نخزن الأعمدة الثابتة + data_json (لو الأعمدة موجودة)
     await env.DB.prepare(`
-      INSERT INTO requests (created_at, form_id, name, mobile, city, count, status, token)
-      VALUES (?, ?, ?, ?, ?, ?, 'Registered', ?)
-    `).bind(now, formId, name, mobile, city, count, token).run();
+      INSERT INTO requests (
+        created_at, form_id, name, mobile, city, count,
+        status, token, data_json
+      )
+      VALUES (?, ?, ?, ?, ?, ?, 'Registered', ?, ?)
+    `).bind(now, formId, name, mobile, city, count, token, data_json).run();
+    
 
     // رابط التأكيد (صفحتك confirm.html)
     const confirmUrl = new URL("/confirm.html", request.url);
