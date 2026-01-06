@@ -1,35 +1,28 @@
-export async function onRequestPost({ request, env }) {
-    try {
-      const body = await request.json().catch(()=> ({}));
-      const formId = Number(body.form_id || 0);
-      const ids = Array.isArray(body.ordered_ids) ? body.ordered_ids.map(Number).filter(Boolean) : [];
-      if(!formId) return json({ ok:false, error:"FORM_ID_REQUIRED" }, 400);
-      if(!ids.length) return json({ ok:false, error:"ORDER_REQUIRED" }, 400);
+export async function fieldsReorder(request, env) {
+    const body = await readJson(request);
+    const formId = Number(body?.form_id);
+    const ordered = body?.ordered_ids;
   
-      // Transaction-like (D1 ما يدعم transaction حقيقي بنفس مفهوم SQL التقليدي، لكن هذا كافي عادة)
-      let sort = 1;
-      for(const id of ids){
-        await env.DB.prepare(`
-          UPDATE form_fields
-          SET sort_order = ?
-          WHERE id = ? AND form_id = ?
-        `).bind(sort, id, formId).run();
-        sort++;
-      }
-  
-      return json({ ok:true });
-    } catch (e) {
-      return json({ ok:false, error: e.message || "SERVER_ERROR" }, 500);
+    if (!Number.isFinite(formId) || formId <= 0 || !Array.isArray(ordered) || ordered.length === 0) {
+      return json({ ok: false, error: "BAD_REQUEST", hint: "form_id and ordered_ids required" }, 400);
     }
-  }
   
-  function json(data, status=200){
-    return new Response(JSON.stringify(data), {
-      status,
-      headers:{
-        "content-type":"application/json; charset=utf-8",
-        "cache-control":"no-store",
-      }
-    });
+    // ترتيب: 10,20,30...
+    const stmts = [];
+    let order = 10;
+  
+    for (const rawId of ordered) {
+      const id = Number(rawId);
+      if (!Number.isFinite(id) || id <= 0) continue;
+  
+      stmts.push(
+        env.DB.prepare(`UPDATE form_fields SET sort_order = ? WHERE id = ? AND form_id = ?`)
+          .bind(order, id, formId)
+      );
+      order += 10;
+    }
+  
+    const batchRes = await env.DB.batch(stmts);
+    return json({ ok: true, updated: batchRes.length });
   }
   

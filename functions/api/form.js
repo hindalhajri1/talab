@@ -1,42 +1,38 @@
-export async function onRequestGet({ request, env }) {
-  try {
-    const url = new URL(request.url);
-    const formId = Number(url.searchParams.get("form_id") || 0);
-
-    if (!formId) {
-      return json({ ok: false, error: "MISSING_FORM_ID" }, 400);
-    }
-
-    const form = await env.DB
-      .prepare(`SELECT id, name, slug, is_active, created_at FROM forms WHERE id = ? LIMIT 1`)
-      .bind(formId)
-      .first();
-
-    if (!form) return json({ ok: false, error: "FORM_NOT_FOUND" }, 404);
-    if (Number(form.is_active) !== 1) return json({ ok: false, error: "FORM_INACTIVE" }, 403);
-
-    const fields = await env.DB
-      .prepare(`
-        SELECT id, label, field_type, required, options_json, sort_order
-        FROM form_fields
-        WHERE form_id = ?
-        ORDER BY sort_order ASC, id ASC
-      `)
-      .bind(formId)
-      .all();
-
-    return json({ ok: true, form, fields: fields.results || [] });
-  } catch (e) {
-    return json({ ok: false, error: e.message || "SERVER_ERROR" }, 500);
+export async function getForm(request, env) {
+  const url = new URL(request.url);
+  const formId = Number(url.searchParams.get("form_id"));
+  if (!Number.isFinite(formId) || formId <= 0) {
+    return json({ ok: false, error: "BAD_REQUEST", hint: "form_id is required" }, 400);
   }
-}
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-    },
-  });
+  const form = await env.DB
+    .prepare(`SELECT * FROM forms WHERE id = ?`)
+    .bind(formId)
+    .first();
+
+  if (!form) return json({ ok: false, error: "NOT_FOUND" }, 404);
+
+  const rows = await env.DB
+    .prepare(`
+      SELECT id, field_key, label, type, placeholder, required, options_json, settings_json, sort_order
+      FROM form_fields
+      WHERE form_id = ?
+      ORDER BY sort_order ASC, id ASC
+    `)
+    .bind(formId)
+    .all();
+
+  const fields = (rows.results || []).map(r => ({
+    id: r.id,
+    field_key: r.field_key,
+    label: r.label,
+    type: r.type,
+    placeholder: r.placeholder,
+    required: !!r.required,
+    options: safeJsonParse(r.options_json, []),
+    settings: safeJsonParse(r.settings_json, {}),
+    sort_order: r.sort_order,
+  }));
+
+  return json({ ok: true, form, fields });
 }
