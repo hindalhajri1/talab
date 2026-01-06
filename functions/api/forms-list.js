@@ -1,39 +1,40 @@
+import { json, safeParse } from "./_utils.js";
+
 export async function onRequestGet({ request, env }) {
+  // إذا تبين تخليه محمي بالداشبورد فقط، خلّي تحقق الـ JWT موجود:
   const jwt = request.headers.get("cf-access-jwt-assertion");
-  if (!jwt) return json({ ok: false, error: "Unauthorized" }, 401);
+  if (!jwt) return json({ ok: false, error: "UNAUTHORIZED" }, 401);
 
-  let email = null;
-  try {
-    const parts = jwt.split(".");
-    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = payload + "=".repeat((4 - (payload.length % 4)) % 4);
-    const claims = JSON.parse(atob(padded));
-    email = claims.email || claims.upn || claims.sub || null;
-  } catch {
-    return json({ ok: false, error: "Bad token" }, 400);
-  }
+  const url = new URL(request.url);
+  const form_id = Number(url.searchParams.get("form_id"));
+  if (!form_id) return json({ ok: false, error: "BAD_REQUEST", hint: "form_id required" }, 400);
 
-  if (!email) return json({ ok: false, error: "Unauthorized" }, 401);
+  const r = await env.DB.prepare(`
+    SELECT id, form_id, label, field_type, required, options_json, sort_order, is_active, created_at
+    FROM form_fields
+    WHERE form_id = ? AND is_active = 1
+    ORDER BY sort_order ASC, id ASC
+  `).bind(form_id).all();
 
-  const res = await env.DB
-    .prepare(`
-      SELECT id, name, slug, is_active, created_at
-      FROM forms
-      WHERE owner_email = ?
-      ORDER BY id DESC
-    `)
-    .bind(email)
-    .all();
-
-  return json({ ok: true, rows: res.results || [] });
-}
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-    },
+  const fields = (r.results || []).map(row => {
+    const opt = safeParse(row.options_json, {});
+    return {
+      id: row.id,
+      form_id: row.form_id,
+      label: row.label,
+      field_type: row.field_type,
+      required: !!row.required,
+      options_json: row.options_json, // نخليه string عشان index.html يفهمه مباشرة
+      sort_order: row.sort_order,
+      is_active: row.is_active,
+      created_at: row.created_at,
+      // إضافات مريحة للـ Builder:
+      field_key: opt.key || "",
+      placeholder: opt.placeholder || "",
+      options: Array.isArray(opt.options) ? opt.options : [],
+      settings: opt.settings || {},
+    };
   });
+
+  return json({ ok: true, fields });
 }
