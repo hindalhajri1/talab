@@ -156,46 +156,44 @@
     }
 
     .field-item{ position:relative; }
-.delx{
-  position:absolute;
-  left:10px;
-  top:10px;
-  width:34px;height:34px;
-  border-radius:12px;
-  border:1px solid rgba(17,24,39,.12);
-  background:#fff;
-  cursor:pointer;
-  font-weight:900;
-}
-.delx:hover{ border-color:#fecaca; color:#991b1b; }
-
+.xbtn{
+    border:1px solid rgba(17,24,39,.12);
+    background:#fff;
+    width:34px;height:34px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:900;
+    line-height:1;
+  }
+  .xbtn:hover{border-color:#fecaca;color:#991b1b}
+  
   </style>
 </head>
 
 <body>
   <div class="page">
 
+    <!-- TOP BAR -->
     <header class="topbar">
       <div>
         <h1>محرر النموذج</h1>
         <div class="meta" id="formTitle">...</div>
       </div>
+
+      <!-- ✅ هنا الأزرار اللي تبغينها في الأعلى -->
       <div class="top-actions">
-        <button class="btn" id="btnCopyPublic" type="button">نسخ رابط النموذج</button>
-        <button class="btn dark" id="btnPreview" type="button">معاينة النموذج</button>
-        <button class="btn" id="btnReload" type="button" style="display:none">تحديث</button>
+        <button class="btn light" id="btnPreview" type="button">معاينة</button>
+        <button class="btn light" id="btnCopyLink" type="button">نسخ رابط النموذج</button>
+        <button class="btn light" id="btnStats" type="button">الإحصائيات</button>
       </div>
-      
     </header>
 
-    <div class="grid">
+    <!-- DESKTOP -->
+    <div class="grid" id="editorGrid">
       <section class="card" id="panelLibrary">
         <div class="hd">الحقول الجاهزة</div>
         <div class="bd">
-          <input id="libSearch" placeholder="بحث عن نوع الحقل..." />
-          <div class="divider"></div>
           <div id="library"></div>
-          <div class="small muted">اضغطي + لإضافة سؤال مباشرة. العنوان والتفاصيل تُعدّل من البطاقة/الخصائص.</div>
         </div>
       </section>
 
@@ -206,10 +204,6 @@
         </div>
         <div class="bd">
           <div class="canvas-wrap">
-            <div class="canvas-top">
-              <button class="btn light" id="btnAddQuick" type="button">+ إضافة سؤال</button>
-              <div class="small muted" id="toast" style="opacity:0;transition:.2s;">تم</div>
-            </div>
             <div class="small muted">رتّبي الحقول بالسحب والإفلات — يتم الحفظ تلقائيًا.</div>
             <div class="divider"></div>
             <div id="canvas"></div>
@@ -225,40 +219,14 @@
       </section>
     </div>
 
-    <div class="bar">
-        <button class="tabbtn active" data-tab="tabCanvas" type="button">النموذج</button>
-        <button class="tabbtn" data-tab="tabLibrary" type="button">الحقول</button>
-        <button class="tabbtn" data-tab="tabProps" type="button">الخصائص</button>
-        <button class="tabbtn" data-tab="tabStats" type="button">الإحصائيات</button>
+    <!-- ✅ STATS VIEW (مبدئيًا UI فقط) -->
+    <div class="card" id="statsView" style="display:none; margin-top:12px;">
+      <div class="hd">
+        <div>إحصائيات النموذج</div>
+        <div class="pill" id="statsMeta">—</div>
       </div>
-      
-
-      <div class="tabpane active" id="tabCanvas">
-        <div class="row" style="justify-content:space-between;gap:10px">
-          <button class="btn light" id="mBtnAddQuick" type="button">+ إضافة سؤال</button>
-          <div class="pill" id="mCanvasMeta">—</div>
-        </div>
-        <div class="divider"></div>
-        <div id="mCanvas"></div>
-      </div>
-
-      <div class="tabpane" id="tabLibrary">
-        <input id="mLibSearch" placeholder="بحث عن نوع الحقل..." />
-        <div class="divider"></div>
-        <div id="mLibrary"></div>
-      </div>
-      <div class="tabpane" id="tabStats">
-        <div class="pill" style="margin-bottom:10px;">ملخص</div>
-      
-        <div class="card" style="box-shadow:none;border-radius:16px;border:1px solid rgba(17,24,39,.08);">
-          <div class="bd">
-            <div id="statsBox" class="small muted">قريبًا سيتم عرض إحصائيات الطلبات هنا.</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="tabpane" id="tabProps">
-        <div id="mProps" class="small muted">اختاري حقلًا من النموذج.</div>
+      <div class="bd" id="statsBody">
+        <div class="small muted">قريبًا سيتم عرض إحصائيات الطلبات هنا.</div>
       </div>
     </div>
 

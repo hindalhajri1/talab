@@ -273,11 +273,11 @@ function renderCanvas() {
 
         ${renderOptionsEditor(f, opt)}
       </div>
+<div class="field-head">
+  <div style="font-weight:900;">${esc(f.label)}</div>
+  <button class="xbtn" type="button" data-del title="حذف">×</button>
+</div>
 
-     <button class="delx" type="button" data-del aria-label="حذف">×</button>
-  <div class="field-meta" style="flex:1;">
-    ...
-  </div>
     `;
 
     // select field card
@@ -495,18 +495,54 @@ async function init() {
   });
   
   bindTabs();
+
+  function showEditor(){
+    document.getElementById("editorGrid").style.display = "";
+    document.getElementById("statsView").style.display = "none";
+  }
   
+  function showStats(){
+    document.getElementById("editorGrid").style.display = "none";
+    document.getElementById("statsView").style.display = "";
+    document.getElementById("statsMeta").textContent = `ID: ${state.form_id}`;
+  }
+  
+  document.getElementById("btnStats")?.addEventListener("click", () => {
+    showStats();
+  });
+  
+  // إذا تبين رجوع للمحرر عند الضغط على عنوان/أو زر ثاني، تقدرين تضيفين زر “رجوع”
+  // أو نخلي زر الإحصائيات نفسه Toggle:
+  document.getElementById("btnStats")?.addEventListener("dblclick", () => {
+    showEditor();
+  });
+  document.getElementById("btnCopyLink")?.addEventListener("click", async () => {
+    const id = state.form_id;
+    const url = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
+  
+    try{
+      await navigator.clipboard.writeText(url);
+      setToast("تم نسخ الرابط ✅");
+    }catch{
+      // fallback للمتصفحات اللي تمنع clipboard
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      setToast("تم نسخ الرابط ✅");
+    }
+  }); 
+  let statsOpen = false;
+document.getElementById("btnStats")?.addEventListener("click", () => {
+  statsOpen = !statsOpen;
+  if(statsOpen) showStats(); else showEditor();
+});
+
 }
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
-document.getElementById("btnCopyPublic")?.addEventListener("click", async ()=>{
-  const publicUrl = `${location.origin}/?form_id=${encodeURIComponent(state.form_id)}`;
 
-  try{
-    await navigator.clipboard.writeText(publicUrl);
-    setToast("تم نسخ الرابط ✅");
-  }catch{
-    // fallback إذا المتصفح منع النسخ
-    prompt("انسخي الرابط:", publicUrl);
-  }
-});
+
+
