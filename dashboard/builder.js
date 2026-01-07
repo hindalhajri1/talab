@@ -444,8 +444,14 @@ async function loadAll() {
   state.fields = r.fields || [];
   $("#formTitle").textContent = `${state.form?.name || "محرر النموذج"} (ID: ${state.form_id})`;
 
-  document.getElementById("canvasMeta").textContent = `ID: ${state.form_id} • الحقول: ${state.fields.length}`;
-document.getElementById("mCanvasMeta").textContent = `الحقول: ${state.fields.length}`;
+ 
+
+const canvasMeta = document.getElementById("canvasMeta");
+if (canvasMeta) canvasMeta.textContent = `ID: ${state.form_id} • الحقول: ${state.fields.length}`;
+
+const mCanvasMeta = document.getElementById("mCanvasMeta");
+if (mCanvasMeta) mCanvasMeta.textContent = `الحقول: ${state.fields.length}`;
+
 
 }
 
@@ -466,81 +472,80 @@ function renderAll() {
 }
 
 
+
 async function init() {
   state.form_id = getFormId();
   if (!state.form_id) { alert("لازم form_id في الرابط"); return; }
 
-  // زر تحديث فقط (زر حفظ الترتيب صار مو مهم)
-  const btnReload = $("#btnReload");
-  const btnSaveOrder = $("#btnSaveOrder");
-  btnReload.onclick = async () => { await loadAll(); renderAll(); };
-  if (btnSaveOrder) btnSaveOrder.style.display = "none";
+  // ✅ مهم: لا تربطين إلا إذا العنصر موجود
+  const btnReload   = document.getElementById("btnReload");
+  const btnPreview  = document.getElementById("btnPreview");
+  const btnCopyLink = document.getElementById("btnCopyLink");
+  const btnStats    = document.getElementById("btnStats");
 
+  if (btnReload) {
+    btnReload.onclick = async () => { await loadAll(); renderAll(); };
+  }
+
+  if (btnPreview) {
+    btnPreview.onclick = () => {
+      window.open(`/?form_id=${encodeURIComponent(state.form_id)}`, "_blank");
+    };
+  }
+
+  if (btnCopyLink) {
+    btnCopyLink.onclick = async () => {
+      const url = `${location.origin}/?form_id=${encodeURIComponent(state.form_id)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        setToast("تم نسخ الرابط ✅");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        setToast("تم نسخ الرابط ✅");
+      }
+    };
+  }
+
+  // عرض/إخفاء الإحصائيات (UI فقط)
+  const editorGrid = document.getElementById("editorGrid");
+  const statsView  = document.getElementById("statsView");
+  let statsOpen = false;
+
+  function showEditor() {
+    if (editorGrid) editorGrid.style.display = "";
+    if (statsView) statsView.style.display = "none";
+    statsOpen = false;
+  }
+  function showStats() {
+    if (editorGrid) editorGrid.style.display = "none";
+    if (statsView) statsView.style.display = "";
+    const statsMeta = document.getElementById("statsMeta");
+    if (statsMeta) statsMeta.textContent = `ID: ${state.form_id}`;
+    statsOpen = true;
+  }
+
+  if (btnStats) {
+    btnStats.onclick = () => {
+      if (!editorGrid || !statsView) return; // ما يمنع التشغيل
+      statsOpen ? showEditor() : showStats();
+    };
+  }
+
+  // ✅ تحميل البيانات ثم رسم الواجهة
   await loadAll();
   renderAll();
 
-  document.getElementById("btnAddQuick")?.addEventListener("click", ()=>{
-    document.getElementById("libSearch")?.focus?.();
-  });
-  
-  document.getElementById("mBtnAddQuick")?.addEventListener("click", ()=>{
-    // يفتح تبويب الحقول ثم يركز البحث
-    document.querySelector('[data-tab="tabLibrary"]')?.click();
-    document.getElementById("mLibSearch")?.focus?.();
-  });
-  
-  document.getElementById("btnPreview")?.addEventListener("click", ()=>{
-    const id = state.form_id;
-    window.open(`/?form_id=${encodeURIComponent(id)}`, "_blank");
-  });
-  
-  bindTabs();
-
-  function showEditor(){
-    document.getElementById("editorGrid").style.display = "";
-    document.getElementById("statsView").style.display = "none";
-  }
-  
-  function showStats(){
-    document.getElementById("editorGrid").style.display = "none";
-    document.getElementById("statsView").style.display = "";
-    document.getElementById("statsMeta").textContent = `ID: ${state.form_id}`;
-  }
-  
-  document.getElementById("btnStats")?.addEventListener("click", () => {
-    showStats();
-  });
-  
-  // إذا تبين رجوع للمحرر عند الضغط على عنوان/أو زر ثاني، تقدرين تضيفين زر “رجوع”
-  // أو نخلي زر الإحصائيات نفسه Toggle:
-  document.getElementById("btnStats")?.addEventListener("dblclick", () => {
-    showEditor();
-  });
-  document.getElementById("btnCopyLink")?.addEventListener("click", async () => {
-    const id = state.form_id;
-    const url = `${location.origin}/?form_id=${encodeURIComponent(id)}`;
-  
-    try{
-      await navigator.clipboard.writeText(url);
-      setToast("تم نسخ الرابط ✅");
-    }catch{
-      // fallback للمتصفحات اللي تمنع clipboard
-      const ta = document.createElement("textarea");
-      ta.value = url;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-      setToast("تم نسخ الرابط ✅");
-    }
-  }); 
-  let statsOpen = false;
-document.getElementById("btnStats")?.addEventListener("click", () => {
-  statsOpen = !statsOpen;
-  if(statsOpen) showStats(); else showEditor();
-});
-
+  // لو عندك تبويبات موبايل وتستخدمين bindTabs
+  if (typeof bindTabs === "function") bindTabs();
 }
+
+init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
+
 
 init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
 
