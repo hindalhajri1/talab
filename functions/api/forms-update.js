@@ -9,30 +9,35 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: "BAD_REQUEST", hint: "id required" }, 400);
   }
 
-  // نسمح حالياً بتعديل الاسم فقط (وبسهولة نوسعها لاحقاً)
-  const name = (updates.name ?? updates.form_name ?? "").toString().trim();
+  const set = [];
+  const params = [];
 
-  if (!name) {
-    return json({ ok: false, error: "BAD_REQUEST", hint: "updates.name required" }, 400);
+  if (updates.name != null) {
+    set.push("name = ?");
+    params.push(String(updates.name).trim());
   }
 
-  // تأكد أن النموذج موجود
-  const current = await env.DB.prepare(`SELECT id, name FROM forms WHERE id = ?`)
-    .bind(id)
-    .first();
+  if (updates.slug != null) {
+    set.push("slug = ?");
+    params.push(String(updates.slug).trim());
+  }
 
-  if (!current) {
-    return json({ ok: false, error: "NOT_FOUND" }, 404);
+  if (!set.length) {
+    return json({ ok: false, error: "NO_UPDATES" }, 400);
   }
 
   try {
-    await env.DB.prepare(`UPDATE forms SET name = ? WHERE id = ?`)
-      .bind(name, id)
+    await env.DB
+      .prepare(`UPDATE forms SET ${set.join(", ")} WHERE id = ?`)
+      .bind(...params, id)
       .run();
 
-    // نرجّع الاسم الجديد مباشرة (يساعد التحديث الفوري في الواجهة)
-    return json({ ok: true, form: { id, name } });
+    return json({ ok: true });
   } catch (e) {
-    return json({ ok: false, error: "DB_ERROR", hint: String(e?.message || e) }, 400);
+    return json({
+      ok: false,
+      error: "DB_ERROR",
+      hint: String(e?.message || e),
+    }, 500);
   }
 }

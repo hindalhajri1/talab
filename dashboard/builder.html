@@ -165,13 +165,14 @@
       font-weight:900;
       line-height:1;
     }
-    .field-item{ position:relative; padding-left:56px; } /* مساحة للزر */
-    .xbtn-left{
-      position:absolute;
-      left:12px;
-      top:50%;
-      transform:translateY(-50%);
-    }
+    .field-item { position:relative; }
+
+.field-item .xbtn{
+  position:absolute;
+  top:10px;
+  left:10px; /* RTL */
+}
+
     
 
   .titleRow{display:flex;align-items:center;gap:10px}
@@ -303,22 +304,32 @@
   </div>
 
   <script src="/dashboard/builder.js?v=1000"></script>
+  <div id="nameModal" style="
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.4);
+  align-items:center; justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#fff;
+    width:360px;
+    border-radius:16px;
+    padding:16px;
+  ">
+    <h3 style="margin:0 0 10px">تعديل اسم النموذج</h3>
 
-  <!-- Modal: Edit Form Name -->
-<div id="nameModal" class="modal" style="display:none;">
-    <div class="modalCard">
-      <div class="modalHd">تعديل اسم النموذج</div>
-      <div class="modalBd">
-        <label>اسم النموذج</label>
-        <input id="nameInput" placeholder="مثال: طلبات الاستلام" />
-        <div class="row" style="justify-content:flex-end; margin-top:12px;">
-          <button class="btn light" id="nameCancel" type="button">إلغاء</button>
-          <button class="btn dark" id="nameSave" type="button">حفظ</button>
-        </div>
-        <div class="small muted" id="nameHint" style="margin-top:8px;display:none;"></div>
-      </div>
+    <input id="nameInput" placeholder="اسم النموذج" />
+
+    <div id="nameHint" class="small" style="color:#b42318;display:none;margin-top:6px"></div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button id="nameCancel" class="btn light">إلغاء</button>
+      <button id="nameSave" class="btn dark">حفظ</button>
     </div>
   </div>
+</div>
+
   
 </body>
 </html>
