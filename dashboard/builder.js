@@ -546,5 +546,10 @@ async function init() {
 }
 
 
-init().catch((e) => { console.error(e); alert("خطأ: " + (e.message || e)); });
+document.addEventListener("DOMContentLoaded", () => {
+  init().catch((e) => {
+    console.error(e);
+    alert("خطأ: " + (e.message || e));
+  });
+});
 

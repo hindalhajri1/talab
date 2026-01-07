@@ -239,10 +239,11 @@
     <!-- TOP BAR -->
     <header class="topbar">
         <div>
-          <div class="titleRow">
-            <h1 id="formName">محرر النموذج</h1>
-            <button class="iconbtn" id="btnEditFormName" type="button" title="تعديل اسم النموذج">✎</button>
-          </div>
+            <div style="display:flex;align-items:center;gap:8px">
+                <span id="formName" style="font-weight:900">...</span>
+                <button id="btnEditFormName" class="btn light" type="button" title="تعديل الاسم">✏️</button>
+              </div>
+              
           <div class="meta" id="formTitle">...</div>
         </div>
       
@@ -250,6 +251,20 @@
           <button class="btn light" id="btnPreview" type="button">معاينة</button>
           <button class="btn light" id="btnCopyLink" type="button">نسخ الرابط</button>
         </div>
+        <div id="toast" style="
+  margin-inline-start:10px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.30);
+  padding:8px 10px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:12px;
+  opacity:0;
+  transition:.2s;
+">
+  تم
+</div>
+
       </header>
       
       <!-- Tabs تحت العنوان (مثل المرفق) -->
