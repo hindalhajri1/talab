@@ -423,6 +423,22 @@ function renderAll() {
 }
 
 
+function showBubbleOver(el, msg){
+  const b = document.getElementById("copyBubble");
+  if(!b || !el) return;
+
+  b.textContent = msg || "تم";
+  const r = el.getBoundingClientRect();
+
+  // فوق الزر مباشرة
+  b.style.left = (r.left + r.width/2) + "px";
+  b.style.top  = (r.top - 10) + "px";
+  b.style.transform = "translate(-50%, -100%)";
+
+  b.classList.add("show");
+  clearTimeout(b._t);
+  b._t = setTimeout(()=> b.classList.remove("show"), 900);
+}
 
 async function init() {
   state.form_id = getFormId();
@@ -500,7 +516,7 @@ async function init() {
       const url = `${location.origin}/?form_id=${encodeURIComponent(state.form_id)}`;
       try {
         await navigator.clipboard.writeText(url);
-        setToast("تم نسخ الرابط ✅");
+        showBubbleOver(btnCopyLink, "تم نسخ الرابط ✅");
       } catch {
         const ta = document.createElement("textarea");
         ta.value = url;
@@ -508,10 +524,11 @@ async function init() {
         ta.select();
         document.execCommand("copy");
         ta.remove();
-        setToast("تم نسخ الرابط ✅");
+        showBubbleOver(btnCopyLink, "تم نسخ الرابط ✅");
       }
     };
   }
+  
 
   // تبويبات أعلى (builder/stats)
   function setView(view){
