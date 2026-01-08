@@ -1,91 +1,78 @@
 (function () {
-    const THEME_KEY = "ht_theme";
-    const LANG_KEY  = "ht_lang";
+    const THEME_KEY = "ht_theme"; // "light" | "dark"
+    const LANG_KEY  = "ht_lang";  // "ar" | "en"
   
-    function applyTheme(theme){
-      const t = theme === "light" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", t);
+    const root = document.documentElement;
+  
+    function setTheme(theme) {
+      const t = (theme === "dark") ? "dark" : "light";
+      root.setAttribute("data-theme", t);
       localStorage.setItem(THEME_KEY, t);
+  
+      // sync checkbox (لو موجود)
+      const themeInput = document.querySelector('[data-toggle-theme]');
+      if (themeInput && themeInput.type === "checkbox") {
+        themeInput.checked = (t === "dark");
+      }
     }
   
-    function applyLang(lang){
-      const l = lang === "en" ? "en" : "ar";
-      document.documentElement.lang = l;
-      document.documentElement.dir  = (l === "ar") ? "rtl" : "ltr";
+    function setLang(lang) {
+      const l = (lang === "en") ? "en" : "ar";
+      root.lang = l;
+      root.dir  = (l === "ar") ? "rtl" : "ltr";
       localStorage.setItem(LANG_KEY, l);
-      // لو عندك i18n لاحقًا نستدعيه هنا
+  
+      // sync checkbox (لو موجود)
+      const langInput = document.querySelector('[data-toggle-lang]');
+      if (langInput && langInput.type === "checkbox") {
+        // checked = EN (عشان يصير السحب لليسار عادة)
+        langInput.checked = (l === "en");
+      }
+  
+      // hook i18n إذا عندك
       if (window.HT_I18N && typeof window.HT_I18N.render === "function") {
         window.HT_I18N.render(l);
       }
     }
-    (function(){
-        const html = document.documentElement;
-      
-        function setTheme(next){
-          html.setAttribute("data-theme", next);
-          localStorage.setItem("theme", next);
-        }
-      
-        // load on start
-        const saved = localStorage.getItem("theme");
-        if(saved) setTheme(saved);
-      
-        document.querySelectorAll("[data-toggle-theme]").forEach(btn=>{
-          btn.addEventListener("click", ()=>{
-            const current = html.getAttribute("data-theme") === "dark" ? "dark" : "light";
-            setTheme(current === "dark" ? "light" : "dark");
+  
+    function boot() {
+      // load saved
+      const savedTheme = localStorage.getItem(THEME_KEY) || "light";
+      const savedLang  = localStorage.getItem(LANG_KEY)  || "ar";
+      setTheme(savedTheme);
+      setLang(savedLang);
+  
+      // theme toggle (checkbox)
+      const themeInput = document.querySelector('[data-toggle-theme]');
+      if (themeInput) {
+        if (themeInput.type === "checkbox") {
+          themeInput.addEventListener("change", () => {
+            setTheme(themeInput.checked ? "dark" : "light");
           });
-        });
-      })();
-      
+        } else {
+          themeInput.addEventListener("click", () => {
+            const next = (root.getAttribute("data-theme") === "dark") ? "light" : "dark";
+            setTheme(next);
+          });
+        }
+      }
+  
+      // lang toggle (checkbox)
+      const langInput = document.querySelector('[data-toggle-lang]');
+      if (langInput) {
+        if (langInput.type === "checkbox") {
+          langInput.addEventListener("change", () => {
+            setLang(langInput.checked ? "en" : "ar");
+          });
+        } else {
+          langInput.addEventListener("click", () => {
+            const next = (root.lang === "en") ? "ar" : "en";
+            setLang(next);
+          });
+        }
+      }
+    }
   
     document.addEventListener("DOMContentLoaded", boot);
-  })();
-  document.querySelectorAll("[data-toggle-theme]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const html = document.documentElement;
-      const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      html.setAttribute("data-theme", next);
-      localStorage.setItem("theme", next);
-    });
-  });
-  
-  // load saved theme
-  const savedTheme = localStorage.getItem("theme");
-  if(savedTheme){
-    document.documentElement.setAttribute("data-theme", savedTheme);
-  }
-  
-  (function(){
-    const root = document.documentElement;
-    const key = "ht_theme";
-  
-    function applyTheme(t){
-      if(t === "dark") root.setAttribute("data-theme","dark");
-      else root.removeAttribute("data-theme");
-    }
-  
-    // init from storage
-    const saved = localStorage.getItem(key);
-    applyTheme(saved);
-  
-    // sync checkbox (لو موجود)
-    const themeInput = document.querySelector('[data-toggle-theme]');
-    if(themeInput && themeInput.type === "checkbox"){
-      themeInput.checked = (saved === "dark");
-      themeInput.addEventListener("change", () => {
-        const next = themeInput.checked ? "dark" : "light";
-        localStorage.setItem(key, next);
-        applyTheme(next);
-      });
-    } else if(themeInput){
-      // fallback لو زر قديم
-      themeInput.addEventListener("click", () => {
-        const isDark = root.getAttribute("data-theme") === "dark";
-        const next = isDark ? "light" : "dark";
-        localStorage.setItem(key, next);
-        applyTheme(next);
-      });
-    }
   })();
   

@@ -276,205 +276,158 @@
     .form-card{grid-column:span 12}
     .topbar{flex-direction:column;align-items:flex-start}
   }
-  /* Theme Toggle */
-.theme-toggle{
-    position:relative;
-    width:56px;
-    height:30px;
-    background:rgba(255,255,255,.35);
-    border:1px solid rgba(255,255,255,.45);
-    border-radius:999px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    padding:0 6px;
-    gap:6px;
-    transition:.25s ease;
+ /* ================================
+   Topbar layout fix (responsive)
+================================ */
+.topbar-left{min-width: 220px}
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+}
+
+@media (max-width: 640px){
+  .topbar{
+    flex-direction:column;
+    align-items:stretch;
   }
-  
-  .theme-toggle .sun,
-  .theme-toggle .moon{
-    font-size:13px;
-    opacity:.8;
+  .topbar-right{
+    justify-content:space-between;
   }
-  
-  .theme-toggle .knob{
-    position:absolute;
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:#fff;
-    left:4px;
-    transition:.25s ease;
-    box-shadow:0 4px 10px rgba(0,0,0,.2);
-  }
-  
-  /* Dark mode position */
-  html[data-theme="dark"] .theme-toggle{
-    background:rgba(0,0,0,.35);
-  }
-  html[data-theme="dark"] .theme-toggle .knob{
-    left:30px;
-  }
-  /* ===== HindTech Theme Switch (مثل الصورة) ===== */
-.ht-theme-switch{
-    direction:ltr;                 /* مهم حتى داخل RTL */
-    position:relative;
-    width:86px;
-    height:40px;
-    border-radius:999px;
-    border:1px solid rgba(0,0,0,.10);
-    background:#EEF1F5;            /* Light track */
-    cursor:pointer;
-    padding:0;
-    display:inline-block;
-    box-shadow: 0 12px 26px rgba(0,0,0,.10);
-    overflow:hidden;
-  }
-  
-  html[data-theme="dark"] .ht-theme-switch{
-    background:#1C1F25;            /* Dark track */
-    border-color: rgba(255,255,255,.10);
-    box-shadow: 0 18px 34px rgba(0,0,0,.55);
-  }
-  
-  .ht-theme-switch .ht-theme-icon{
-    position:absolute;
-    top:50%;
-    transform:translateY(-50%);
-    width:26px;
-    height:26px;
-    display:grid;
-    place-items:center;
-    opacity:.85;
-  }
-  
-  .ht-theme-switch .ht-theme-icon svg{
-    width:22px;
-    height:22px;
-    stroke:currentColor;
-    fill:none;
-    stroke-width:1.8;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-  }
-  
-  /* الشمس يسار في Light */
-  .ht-theme-switch .ht-theme-icon.sun{
-    left:14px;
-    color:#0B1220;
-  }
-  
-  /* القمر يمين في Dark */
-  .ht-theme-switch .ht-theme-icon.moon{
-    right:14px;
-    color:#EAF2FF;
-  }
-  
-  /* إبراز الأيقونة حسب الثيم */
-  html:not([data-theme="dark"]) .ht-theme-icon.moon{ opacity:.0; }
-  html[data-theme="dark"] .ht-theme-icon.sun{ opacity:.0; }
-  
-  .ht-theme-knob{
-    position:absolute;
-    top:50%;
-    transform:translateY(-50%);
-    width:34px;
-    height:34px;
-    border-radius:999px;
-    transition: left .22s ease, right .22s ease, background .22s ease;
-    box-shadow: 0 10px 18px rgba(0,0,0,.25);
-  }
-  
-  /* Light: الدائرة يمين ولونها غامق */
-  html:not([data-theme="dark"]) .ht-theme-knob{
-    right:4px;
-    left:auto;
-    background:#2B2F36;
-  }
-  
-  /* Dark: الدائرة يسار ولونها أبيض */
-  html[data-theme="dark"] .ht-theme-knob{
-    left:4px;
-    right:auto;
-    background:#FFFFFF;
-  }
-  /* ================================
-   Toggle Switch (Theme)
+  .pill{width:100%; justify-content:center;}
+}
+
+/* ================================
+   Theme Switch (ONE)
 ================================ */
 .ht-switch{
-    display:inline-flex;
-    align-items:center;
-    cursor:pointer;
-    user-select:none;
-  }
-  
-  .ht-switch input{
-    position:absolute;
-    opacity:0;
-    width:1px;height:1px;
-  }
-  
-  .ht-track{
-    width:78px;
-    height:40px;
-    border-radius:999px;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 12px;
-    background: rgba(255,255,255,.22);
-    border: 1px solid rgba(255,255,255,.28);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 12px 24px rgba(0,0,0,.10);
-  }
-  
-  /* icons */
-  .ht-ic{
-    width:18px;
-    height:18px;
-    display:block;
-    color: rgba(0,16,24,.85);
-    opacity:.9;
-    pointer-events:none;
-  }
-  
-  html[data-theme="dark"] .ht-track{
-    background: rgba(12,17,24,.55);
-    border: 1px solid rgba(255,255,255,.12);
-    box-shadow: 0 18px 34px rgba(0,0,0,.35);
-  }
-  
-  html[data-theme="dark"] .ht-ic{
-    color: rgba(234,242,255,.85);
-  }
-  
-  /* thumb */
-  .ht-thumb{
-    position:absolute;
-    top:4px;
-    width:32px;
-    height:32px;
-    border-radius:999px;
-    background: rgba(255,255,255,.92);
-    box-shadow: 0 10px 18px rgba(0,0,0,.18);
-    transition: transform .22s ease;
-    /* RTL: يبدأ من اليمين */
-    right:4px;
-  }
-  
-  /* إذا صار Dark (checked) يتحرك يسار */
-  .ht-switch input:checked + .ht-track .ht-thumb{
-    transform: translateX(-38px);
-  }
-  
-  /* تحسين “نقرة” */
-  .ht-track:active .ht-thumb{
-    transform: scale(.98) translateX(0);
-  }
-  .ht-switch input:checked + .ht-track:active .ht-thumb{
-    transform: scale(.98) translateX(-38px);
-  }
-  
+  display:inline-flex;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+}
+
+.ht-switch input{
+  position:absolute;
+  opacity:0;
+  width:1px;height:1px;
+}
+
+.ht-track{
+  width:78px;
+  height:40px;
+  border-radius:999px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+  background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.10);
+}
+
+.ht-ic{
+  width:18px;
+  height:18px;
+  display:block;
+  color: rgba(0,16,24,.85);
+  opacity:.9;
+  pointer-events:none;
+}
+
+html[data-theme="dark"] .ht-track{
+  background: rgba(12,17,24,.55);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 34px rgba(0,0,0,.35);
+}
+
+html[data-theme="dark"] .ht-ic{
+  color: rgba(234,242,255,.85);
+}
+
+.ht-thumb{
+  position:absolute;
+  top:4px;
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 10px 18px rgba(0,0,0,.18);
+  transition: transform .22s ease;
+  right:4px; /* RTL */
+}
+
+.ht-switch input:checked + .ht-track .ht-thumb{
+  transform: translateX(-38px);
+}
+
+/* ================================
+   Language Switch (AR/EN) Smooth
+================================ */
+.ht-lang{
+  display:inline-flex;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+}
+
+.ht-lang input{
+  position:absolute;
+  opacity:0;
+  width:1px;height:1px;
+}
+
+.ht-lang-track{
+  width:78px;
+  height:40px;
+  border-radius:999px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+  background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.10);
+}
+
+html[data-theme="dark"] .ht-lang-track{
+  background: rgba(12,17,24,.55);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 34px rgba(0,0,0,.35);
+}
+
+.ht-lang-pill{
+  font-weight:900;
+  font-size:12px;
+  opacity:.9;
+  color: rgba(0,16,24,.85);
+  z-index:2;
+}
+
+html[data-theme="dark"] .ht-lang-pill{
+  color: rgba(234,242,255,.85);
+}
+
+.ht-lang-thumb{
+  position:absolute;
+  top:4px;
+  width:34px;
+  height:32px;
+  border-radius:999px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 10px 18px rgba(0,0,0,.18);
+  transition: transform .22s ease;
+  right:4px; /* RTL: AR يكون يمين */
+}
+
+.ht-lang input:checked + .ht-lang-track .ht-lang-thumb{
+  transform: translateX(-38px); /* checked = EN */
+}
