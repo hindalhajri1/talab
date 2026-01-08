@@ -389,22 +389,39 @@ function renderProps() {
 /* ---------------- Load ---------------- */
 
 async function loadAll() {
-  const r = await api(`/api/form?form_id=${state.form_id}&t=${Date.now()}`);
-  state.form = r.form;
-  state.fields = r.fields || [];
-  const nameEl = document.getElementById("formName");
-  if (nameEl) nameEl.textContent = state.form?.name || "نموذج بدون اسم";
-  
- 
+  try {
+    const r = await api(`/api/form?form_id=${state.form_id}&t=${Date.now()}`);
+    state.form = r.form;
+    state.fields = r.fields || [];
 
-const canvasMeta = document.getElementById("canvasMeta");
-if (canvasMeta) canvasMeta.textContent = `ID: ${state.form_id} • الحقول: ${state.fields.length}`;
+    const nameEl = document.getElementById("formName");
+    if (nameEl) nameEl.textContent = state.form?.name || "نموذج بدون اسم";
 
-const mCanvasMeta = document.getElementById("mCanvasMeta");
-if (mCanvasMeta) mCanvasMeta.textContent = `الحقول: ${state.fields.length}`;
+    const canvasMeta = document.getElementById("canvasMeta");
+    if (canvasMeta) canvasMeta.textContent = `الحقول: ${state.fields.length}`;
 
+  } catch (e) {
+    // لو النموذج محذوف/غير موجود
+    state.form = null;
+    state.fields = [];
 
+    const nameEl = document.getElementById("formName");
+    if (nameEl) nameEl.textContent = "نموذج غير موجود";
+
+    const root = document.getElementById("canvas");
+    if (root) {
+      root.innerHTML = `
+        <div class="card" style="padding:14px;border-radius:16px;border:1px solid rgba(17,24,39,.10);background:#fff;">
+          <div style="font-weight:900;margin-bottom:6px;">هذا النموذج غير موجود</div>
+          <div class="small muted">غيّري رقم form_id في الرابط أو اختاري نموذجًا موجودًا من لوحة التحكم.</div>
+        </div>
+      `;
+    }
+
+    throw e; // أو احذفي السطر هذا لو تبينها ما تطلع Alert
+  }
 }
+
 
 function syncMobile(){
   const mLib = document.getElementById("mLibrary");

@@ -249,6 +249,58 @@
     opacity:1;
     transform: translateY(0);
   }
+
+  /* ✅ نظام موحّد للأيقونات داخل الأزرار */
+.btn, .tabTop, .iconbtn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  
+  .btn svg, .tabTop svg, .iconbtn svg{
+    width:18px;
+    height:18px;
+    flex:0 0 18px;
+    display:inline-block;
+    vertical-align:middle;
+    fill: currentColor;  /* مهم عشان يصير لونها نفس لون النص */
+  }
+  
+  /* لو عندك svg فيها stroke بدل fill */
+  .btn svg path, .tabTop svg path, .iconbtn svg path{
+    fill: currentColor;
+  }
+  
+  /* زر القلم (تعديل الاسم) نخليه صغير ومرتب */
+  #btnEditFormName{
+    padding:8px 10px !important;
+    border-radius:12px !important;
+    min-width:auto !important;
+  }
+  
+  /* التبويبات اللي فوق (إدارة النموذج/الإحصائيات) */
+  .topTabs{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  
+  .tabTop{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+  }
+  
+  /* لو كانت تظهر عندك بشكل دائري/كبير - نلغي أي قياسات غريبة */
+  .tabTop{
+    width:auto !important;
+    height:auto !important;
+  }
+  
   
   </style>
 </head>
@@ -261,18 +313,30 @@
         <div>
             <div style="display:flex;align-items:center;gap:8px">
                 <span id="formName" style="font-weight:900">...</span>
-                <button id="btnEditFormName" class="btn light" type="button" title="تعديل الاسم">    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41L18.37 3.3a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.82-1.84z"/></svg>
-                </button>
+                <button id="btnEditFormName" class="btn light" type="button" title="تعديل الاسم">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41L18.37 3.3a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.82-1.84z"/>
+                    </svg>
+                  </button>
+                  
               </div>
               
           <div class="meta" id="formTitle">...</div>
         </div>
       
         <div class="top-actions">
-          <button class="btn light" id="btnPreview" type="button">معاينة     <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>
-          </button>
-          <button class="btn light" id="btnCopyLink" type="button" >نسخ الرابط     <svg viewBox="0 0 24 24"><path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H10V7h9v14z"/></svg>
-          </button>
+            <button class="btn light" id="btnPreview" type="button">
+                معاينة
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+                </svg>
+              </button>
+              <button class="btn light" id="btnCopyLink" type="button">
+                نسخ الرابط
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H10V7h9v14z"/>
+                </svg>
+              </button>
           <div id="copyBubble" class="copy-bubble">تم النسخ ✅</div>
 
         </div>
