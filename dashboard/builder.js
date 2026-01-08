@@ -250,11 +250,9 @@ function renderCanvas() {
 
       <div class="field-meta" style="flex:1;">
         <input data-edit-label value="${esc(f.label)}"
-          style="font-weight:900;border:1px solid #dfe3ee;padding:10px;border-radius:14px;background:#fff;" />
+          style="font-weight:900;border:1px solid #dfe3ee;padding:20px;border-radius:14px;background:#fff;" />
 
-        <div class="small muted" style="margin-top:8px;">
-          <span class="tag">${esc(f.field_type)}</span>
-        </div>
+       
 
         <div class="row" style="margin-top:10px;justify-content:space-between;">
           <label style="margin:0;display:flex;gap:8px;align-items:center;">
