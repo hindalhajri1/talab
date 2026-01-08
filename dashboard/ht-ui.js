@@ -1,76 +1,70 @@
-(function () {
-    const THEME_KEY = "ht_theme"; // "light" | "dark"
-    const LANG_KEY  = "ht_lang";  // "ar" | "en"
+(() => {
+    const THEME_KEY = "ht_theme";
+    const LANG_KEY  = "ht_lang";
   
     const root = document.documentElement;
   
-    function setTheme(theme) {
+    function getSavedTheme() {
+      // default light
+      return (localStorage.getItem(THEME_KEY) === "dark") ? "dark" : "light";
+    }
+  
+    function applyTheme(theme) {
       const t = (theme === "dark") ? "dark" : "light";
       root.setAttribute("data-theme", t);
       localStorage.setItem(THEME_KEY, t);
   
-      // sync checkbox (لو موجود)
+      // sync checkbox إن وجد
       const themeInput = document.querySelector('[data-toggle-theme]');
       if (themeInput && themeInput.type === "checkbox") {
         themeInput.checked = (t === "dark");
       }
     }
   
-    function setLang(lang) {
+    function getSavedLang() {
+      return (localStorage.getItem(LANG_KEY) === "en") ? "en" : "ar";
+    }
+  
+    function applyLang(lang) {
       const l = (lang === "en") ? "en" : "ar";
       root.lang = l;
       root.dir  = (l === "ar") ? "rtl" : "ltr";
       localStorage.setItem(LANG_KEY, l);
   
-      // sync checkbox (لو موجود)
-      const langInput = document.querySelector('[data-toggle-lang]');
-      if (langInput && langInput.type === "checkbox") {
-        // checked = EN (عشان يصير السحب لليسار عادة)
-        langInput.checked = (l === "en");
-      }
-  
-      // hook i18n إذا عندك
+      // لو عندك i18n لاحقًا
       if (window.HT_I18N && typeof window.HT_I18N.render === "function") {
         window.HT_I18N.render(l);
       }
     }
   
+    function toggleLang() {
+      const current = getSavedLang();
+      applyLang(current === "ar" ? "en" : "ar");
+    }
+  
     function boot() {
-      // load saved
-      const savedTheme = localStorage.getItem(THEME_KEY) || "light";
-      const savedLang  = localStorage.getItem(LANG_KEY)  || "ar";
-      setTheme(savedTheme);
-      setLang(savedLang);
+      // init theme + lang
+      applyTheme(getSavedTheme());
+      applyLang(getSavedLang());
   
-      // theme toggle (checkbox)
-      const themeInput = document.querySelector('[data-toggle-theme]');
-      if (themeInput) {
-        if (themeInput.type === "checkbox") {
-          themeInput.addEventListener("change", () => {
-            setTheme(themeInput.checked ? "dark" : "light");
+      // theme toggles (checkbox أو زر)
+      document.querySelectorAll("[data-toggle-theme]").forEach(el => {
+        if (el.type === "checkbox") {
+          el.addEventListener("change", () => {
+            applyTheme(el.checked ? "dark" : "light");
           });
         } else {
-          themeInput.addEventListener("click", () => {
-            const next = (root.getAttribute("data-theme") === "dark") ? "light" : "dark";
-            setTheme(next);
+          el.addEventListener("click", () => {
+            const next = (getSavedTheme() === "dark") ? "light" : "dark";
+            applyTheme(next);
           });
         }
-      }
+      });
   
-      // lang toggle (checkbox)
-      const langInput = document.querySelector('[data-toggle-lang]');
-      if (langInput) {
-        if (langInput.type === "checkbox") {
-          langInput.addEventListener("change", () => {
-            setLang(langInput.checked ? "en" : "ar");
-          });
-        } else {
-          langInput.addEventListener("click", () => {
-            const next = (root.lang === "en") ? "ar" : "en";
-            setLang(next);
-          });
-        }
-      }
+      // lang toggle (اختياري)
+      document.querySelectorAll("[data-toggle-lang]").forEach(el => {
+        el.addEventListener("click", toggleLang);
+      });
     }
   
     document.addEventListener("DOMContentLoaded", boot);

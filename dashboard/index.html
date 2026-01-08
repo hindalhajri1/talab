@@ -12,50 +12,35 @@
     <link rel="stylesheet" href="/dashboard/ht-theme.css?v=2">
   </head>
  
-<body>
-  <div class="container">
-    <div class="topbar">
-      <div class="topbar-left">
-        <h1 id="hello">مرحباً بك 👋</h1>
-        <div class="meta" id="updated">Last update: —</div>
-      </div>
-    
-      <div class="topbar-right">
-        <!-- Theme toggle -->
-        <label class="ht-switch" title="الوضع الليلي/النهاري">
-          <input id="themeToggle" type="checkbox" data-toggle-theme />
-          <span class="ht-track" aria-hidden="true">
-            <!-- Sun -->
-            <svg class="ht-ic ht-sun" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16v2m0 16v2M4 12H2m20 0h-2M5.64 5.64 4.22 4.22m15.56 15.56-1.42-1.42M18.36 5.64l1.42-1.42M4.22 19.78l1.42-1.42" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-            </svg>
-    
-            <!-- Moon -->
-            <svg class="ht-ic ht-moon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a6.5 6.5 0 1 0 11.5 11.5Z" fill="currentColor"/>
-            </svg>
-    
-            <span class="ht-thumb" aria-hidden="true"></span>
-          </span>
-        </label>
-    
-        <!-- Language toggle -->
-        <label class="ht-lang" title="اللغة">
-          <input id="langToggle" type="checkbox" data-toggle-lang />
-          <span class="ht-lang-track" aria-hidden="true">
-            <span class="ht-lang-pill ht-ar">AR</span>
-            <span class="ht-lang-pill ht-en">EN</span>
-            <span class="ht-lang-thumb" aria-hidden="true"></span>
-          </span>
-        </label>
-    
-        <div class="pill" title="حسابك">
-          <span id="userEmail">—</span>
-        </div>
-      </div>
+<body><div class="topbar">
+  <div>
+    <h1 id="hello">مرحباً بك 👋</h1>
+    <div class="meta" id="updated">Last update: —</div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <label class="ht-switch" title="الوضع الليلي/النهاري">
+      <input id="themeToggle" type="checkbox" data-toggle-theme />
+      <span class="ht-track" aria-hidden="true">
+        <svg class="ht-ic ht-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16v2m0 16v2M4 12H2m20 0h-2M5.64 5.64 4.22 4.22m15.56 15.56-1.42-1.42M18.36 5.64l1.42-1.42M4.22 19.78l1.42-1.42" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <svg class="ht-ic ht-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a6.5 6.5 0 1 0 11.5 11.5Z" fill="currentColor"/>
+        </svg>
+        <span class="ht-thumb" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <!-- لو تبين زر لغة لاحقًا -->
+    <!-- <button class="btn ghost" type="button" data-toggle-lang>AR/EN</button> -->
+
+    <div class="pill" title="حسابك">
+      <span id="userEmail">—</span>
     </div>
-    
-    </div>
+  </div>
+</div>
+
     
 
     <!-- FORMS -->
